@@ -1,0 +1,17 @@
+.tools/
+build/
+live-test-website/
+
+frontend-app/node_modules/
+frontend-app/dist/
+frontend-app/.vite/
+frontend-app/.env.local
+
+frontend-lite/__pycache__/
+
+assets/starter/node_modules/
+assets/starter/dist/
+
+*.log
+Thumbs.db
+.DS_Store
