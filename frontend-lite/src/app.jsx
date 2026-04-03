@@ -299,10 +299,10 @@ function HeroSection({ site, pages, posts }) {
     <section className="hero-panel">
       <div className="hero-copy">
         <p className="eyebrow">Release-ready alpha</p>
-        <h1>Connect WordPress to modern frontends.</h1>
+        <h1>Same WordPress content. Better frontend.</h1>
         <p className="hero-lede">
-          PressBridge turns WordPress into a headless-ready backend and connects it to a modern
-          frontend like React without breaking wp-admin, previews, or editorial workflows.
+          PressBridge lets you keep WordPress as the CMS while moving the public experience to
+          React without breaking wp-admin, previews, or editorial workflows.
         </p>
         <div className="action-row">
           {primaryPage ? (
@@ -317,7 +317,8 @@ function HeroSection({ site, pages, posts }) {
           ) : null}
         </div>
         <p className="inline-note">
-          This landing page is itself being rendered through the PressBridge flow.
+          This page is using live WordPress content and routes, but it is being rendered by React
+          through PressBridge.
         </p>
       </div>
 
@@ -391,7 +392,7 @@ function BenefitGrid() {
     },
     {
       title: "Modern frontend freedom",
-      copy: "Build the public experience in React instead of squeezing frontend behavior into PHP templates."
+      copy: "Build the public experience in React instead of forcing modern UX work back into PHP templates."
     },
     {
       title: "Safe gradual adoption",
@@ -419,21 +420,22 @@ function LiveProof({ site, route }) {
   return (
     <section className="content-card">
       <p className="eyebrow">Live proof</p>
-      <h2>This page is being rendered through PressBridge right now</h2>
+      <h2>The content is still WordPress. The presentation is React.</h2>
       <div className="live-proof-layout">
         <p className="lede">
-          React is rendering this homepage, but the route, content source, and delivery settings
-          are all still coming from WordPress through the PressBridge API.
+          The route, content source, and editorial flow still come from WordPress. PressBridge
+          resolves the route and hands the same content to React so the frontend can present it
+          differently.
         </p>
         <ul className="proof-list">
           <li>
             <strong>Route source:</strong> {route?.path || "/"} resolved by WordPress
           </li>
           <li>
-            <strong>Editorial flow:</strong> editors stay in WordPress admin
+            <strong>Editorial flow:</strong> publishing and previews still start in WordPress
           </li>
           <li>
-            <strong>Content source:</strong> {site?.home_url || "WordPress"} supplies the live data
+            <strong>Content source:</strong> {site?.home_url || "WordPress"} still supplies the live data
           </li>
         </ul>
       </div>
@@ -450,7 +452,7 @@ function RouteExamples({ pages, posts, route }) {
   return (
     <section className="content-card">
       <p className="eyebrow">Route examples</p>
-      <h2>Real WordPress routes already available in this frontend</h2>
+      <h2>These are real WordPress routes, rendered through the React frontend</h2>
       <div className="archive-grid">
         {samplePage ? (
           <article key={samplePage.id} className="archive-card">
@@ -507,7 +509,7 @@ function LatestContentSection({ route }) {
   return (
     <section className="content-card">
       <p className="eyebrow">Latest content</p>
-      <h2>Published content flowing from WordPress right now</h2>
+      <h2>Published in WordPress, delivered through PressBridge</h2>
       <div className="archive-grid">
         {items.slice(0, 3).map((item) => (
           <article key={item.id} className="archive-card">
@@ -543,7 +545,7 @@ function SystemHealth({ site }) {
         : "Add a frontend URL in WordPress before using frontend previews."
     },
     {
-      title: "Delivery mode",
+      title: "Current handoff mode",
       status: describeRouteMode(site),
       copy:
         site?.route_handling_mode === "redirect"
