@@ -2,9 +2,30 @@
 
 Connect WordPress to modern frontends.
 
-PressBridge helps you keep WordPress as your CMS while upgrading the public frontend to React. It handles route resolution, preview flow, and safe frontend handoff without breaking normal editorial workflows.
+Keep WordPress as your CMS. Upgrade your frontend to React.
+
+PressBridge helps you keep WordPress as the content system while upgrading the public frontend to React. It handles route resolution, preview flow, and safe frontend handoff without breaking normal editorial workflows.
 
 Primary value: `Same WordPress content. Better frontend.`
+
+## Before vs After
+
+**Same content. Two frontends.**
+
+The WordPress version shows the default theme rendering. The PressBridge version shows the same content being rendered through React with a cleaner frontend layer.
+
+| WordPress default rendering | PressBridge React rendering |
+| --- | --- |
+| ![WordPress version](docs/images/wp-version.png) | ![PressBridge version](docs/images/pressbridge-version.png) |
+
+Caption:
+
+- Left: the default WordPress frontend rendering the page through the active theme.
+- Right: the same WordPress content resolved through PressBridge and rendered in React.
+
+Homepage screenshot:
+
+![PressBridge homepage](docs/images/pressbridge-home.png)
 
 ## What is PressBridge
 
@@ -21,37 +42,18 @@ This repository contains:
 
 ## Why it exists
 
-Typical WordPress headless setups often ask you to replace too much at once. You lose familiar preview behavior, route handling gets fragile, and editorial workflows can become harder instead of better.
+WordPress is strong as a CMS, but the default frontend model can be limiting when you want a more modern UI layer. At the same time, fully headless WordPress setups often add too much complexity too early: custom routing, brittle previews, and a larger integration surface than many teams actually need.
 
-PressBridge exists to make that upgrade path less brittle.
-
-It lets developers keep WordPress where WordPress is strong, while moving the public experience to React in a way that stays practical for agencies, technical site owners, and teams maintaining real editorial sites.
-
-## Before vs After
-
-### Default WordPress frontend
-
-- WordPress manages content and renders the public site through the active theme
-- frontend changes often live in PHP templates and theme CSS
-- upgrading UX or interaction patterns can mean working around theme constraints
-
-### PressBridge React frontend
-
-- WordPress still manages the content
-- PressBridge resolves routes, previews, and frontend handoff
-- React renders the public experience with a cleaner component-based frontend layer
-
-Screenshot placeholders:
-
-- WordPress version: [docs/images/wp-version.png](docs/images/wp-version.png)
-- PressBridge version: [docs/images/pressbridge-version.png](docs/images/pressbridge-version.png)
+PressBridge exists to simplify that bridge. It keeps WordPress where WordPress is strong and adds a safer path to a React frontend.
 
 ## How it works
 
-```mermaid
-flowchart LR
-  A["WordPress<br/>content, menus, previews, publishing"] --> B["PressBridge<br/>route resolution, preview tokens, bridge API"]
-  B --> C["React frontend<br/>page rendering, layout, navigation, UX"]
+```text
+WordPress (CMS)
+  ->
+PressBridge (Plugin Layer)
+  ->
+React Frontend
 ```
 
 High-level flow:
@@ -62,14 +64,12 @@ High-level flow:
 
 ## Features
 
-Only features that currently exist in this repo are listed here.
-
 - Headless mode toggle with safe fallback behavior
 - Configurable frontend app URL
 - Public redirect handoff for logged-out visitors
 - Safe bypass for `wp-admin`, login, REST, AJAX, cron, and logged-in editors
-- Custom REST namespace for site config, menus, pages, posts, generic items, content by slug, route resolution, and previews
-- Signed preview token flow for cross-domain frontend previews
+- Custom REST namespace for site config, menus, content, route resolution, and previews
+- Signed preview links for cross-domain frontend previews
 - `View in React` shortcuts for logged-in users
 - React starter export
 - Gutenberg-aware content rendering with safe fallback for unsupported blocks
@@ -111,8 +111,8 @@ python server.py
 
 Check these first:
 
-- `http://wp-to-react.local/wp-json/pressbridge/v1/site`
-- `http://wp-to-react.local/wp-json/pressbridge/v1/resolve?path=/`
+- `http://pressbridge.local/wp-json/pressbridge/v1/site`
+- `http://pressbridge.local/wp-json/pressbridge/v1/resolve?path=/`
 - `http://localhost:5173/`
 
 ### 5. Enable handoff when ready
@@ -196,6 +196,20 @@ Live demo behavior in this repo already shows the main idea:
 - Teams looking for a no-code site builder
 - Projects that need full WordPress theme parity out of the box
 - Teams expecting WooCommerce, ACF, or SSR support today
+
+## How PressBridge is different
+
+Typical headless WordPress setups often mean:
+
+- custom setup
+- brittle preview flow
+- routing logic spread across the frontend
+
+PressBridge takes a more practical path:
+
+- plugin-based bridge layer
+- safe fallback behavior
+- easier adoption for real editorial sites
 
 ## Supporting Docs
 

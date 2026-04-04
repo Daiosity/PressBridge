@@ -58,7 +58,7 @@ This is an alpha-stage bridge plugin. It is intentionally conservative:
 The main local development assumptions in this repo are:
 
 * WordPress runs through Local
-* the current local site URL is `http://wp-to-react.local`
+* the example local site URL is `http://pressbridge.local`
 * the React frontend commonly runs on `http://localhost:5173`
 * the plugin REST namespace is `pressbridge/v1`
 

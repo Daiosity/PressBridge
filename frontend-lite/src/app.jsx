@@ -1,6 +1,6 @@
 const { useEffect, useMemo, useState } = React;
 
-const API_BASE = "http://wp-to-react.local/wp-json/pressbridge/v1";
+const API_BASE = "http://pressbridge.local/wp-json/pressbridge/v1";
 
 async function apiFetch(path) {
   let response;

@@ -1,19 +1,19 @@
 # PressBridge Frontend
 
-This frontend is wired to the Local test site at `http://wp-to-react.local`.
+This frontend expects a local WordPress site such as `http://pressbridge.local`.
 
 ## Quick start
 
 1. Install dependencies with `npm install`
-2. Confirm `.env.local` points to `http://wp-to-react.local/wp-json/pressbridge/v1`
+2. Confirm your local API base points to `http://pressbridge.local/wp-json/pressbridge/v1`
 3. Start the dev server with `npm run dev`
 4. Open `http://localhost:5173`
 5. Once the app renders correctly, switch the plugin route mode to React redirect for full handoff testing
 
 ## Notes
 
-- API base: `http://wp-to-react.local/wp-json/pressbridge/v1`
-- WordPress site: `http://wp-to-react.local`
+- API base: `http://pressbridge.local/wp-json/pressbridge/v1`
+- WordPress site: `http://pressbridge.local`
 - Frontend URL configured in WordPress: `http://localhost:5173`
 
 ## Production hosting

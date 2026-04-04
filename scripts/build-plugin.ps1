@@ -4,8 +4,6 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 $buildRoot = Join-Path $projectRoot 'build'
 $packageRoot = Join-Path $buildRoot 'pressbridge'
 $zipPath = Join-Path $buildRoot 'pressbridge-0.2.0.zip'
-$legacyPackageRoot = Join-Path $buildRoot 'wp-to-react'
-$legacyZipPath = Join-Path $buildRoot 'wp-to-react-0.2.0.zip'
 
 $itemsToCopy = @(
     'pressbridge.php',
@@ -22,14 +20,6 @@ if (Test-Path $packageRoot) {
 
 if (Test-Path $zipPath) {
     Remove-Item -LiteralPath $zipPath -Force
-}
-
-if (Test-Path $legacyPackageRoot) {
-    Remove-Item -LiteralPath $legacyPackageRoot -Recurse -Force
-}
-
-if (Test-Path $legacyZipPath) {
-    Remove-Item -LiteralPath $legacyZipPath -Force
 }
 
 New-Item -ItemType Directory -Path $packageRoot -Force | Out-Null

@@ -8,23 +8,23 @@ Current assumptions:
 
 - the bundled local test site lives in `live-test-website`
 - it is run through Local, not a custom PHP server command
-- the current hostname is still `http://wp-to-react.local`
-- the product name is now `PressBridge`, even though the Local hostname has not been renamed
+- the recommended example hostname is `http://pressbridge.local`
+- if your Local site uses a different hostname, update the frontend config and plugin setting accordingly
 
 Recommended WordPress checks before frontend work:
 
 1. Start the site in Local.
-2. Open `http://wp-to-react.local`.
+2. Open `http://pressbridge.local`.
 3. Confirm `PressBridge` is active.
 4. Open `Settings > PressBridge`.
 5. Set the frontend URL you plan to test against.
 
 Useful local API checks:
 
-- `http://wp-to-react.local/wp-json/pressbridge/v1/site`
-- `http://wp-to-react.local/wp-json/pressbridge/v1/pages`
-- `http://wp-to-react.local/wp-json/pressbridge/v1/posts`
-- `http://wp-to-react.local/wp-json/pressbridge/v1/resolve?path=/`
+- `http://pressbridge.local/wp-json/pressbridge/v1/site`
+- `http://pressbridge.local/wp-json/pressbridge/v1/pages`
+- `http://pressbridge.local/wp-json/pressbridge/v1/posts`
+- `http://pressbridge.local/wp-json/pressbridge/v1/resolve?path=/`
 
 ## Frontend options
 

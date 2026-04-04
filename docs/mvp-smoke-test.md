@@ -9,7 +9,7 @@ Use this checklist when validating the plugin inside a real WordPress install.
 3. Visit `Settings > PressBridge`.
 4. Save a frontend URL such as `http://localhost:5173`.
 5. Confirm the Connection Status panel updates as expected.
-6. If using the repo's Local site, confirm `http://wp-to-react.local` is running before frontend checks.
+6. If using the repo's Local site, confirm your local WordPress URL, for example `http://pressbridge.local`, is running before frontend checks.
 
 ## REST checks
 
