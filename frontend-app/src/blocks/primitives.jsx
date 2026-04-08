@@ -42,6 +42,6 @@ export function Media({ className = "", src, alt = "", caption = "", style, imag
   );
 }
 
-export function ButtonGroup({ className = "", children }) {
-  return <div className={className}>{children}</div>;
+export function ButtonGroup({ className = "", style, children }) {
+  return <div className={className} style={style}>{children}</div>;
 }

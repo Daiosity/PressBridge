@@ -19,7 +19,19 @@ class Path_Helper {
 	public function normalize_path( $path ) {
 		$path = is_string( $path ) ? wp_unslash( $path ) : '/';
 		$path = trim( $path );
-		$path = '/' . ltrim( $path, '/' );
+
+		if ( '' === $path ) {
+			return '/';
+		}
+
+		$parsed_path = wp_parse_url( $path, PHP_URL_PATH );
+
+		if ( is_string( $parsed_path ) && '' !== $parsed_path ) {
+			$path = $parsed_path;
+		}
+
+		$path = preg_replace( '#/+#', '/', $path );
+		$path = '/' . ltrim( (string) $path, '/' );
 
 		return '/' === $path ? '/' : trailingslashit( $path );
 	}
@@ -31,11 +43,12 @@ class Path_Helper {
 	 * @return string
 	 */
 	public function strip_home_path_prefix( $path ) {
-		$path      = is_string( $path ) ? $path : '/';
+		$path      = $this->normalize_path( $path );
 		$home_path = wp_parse_url( home_url( '/' ), PHP_URL_PATH );
+		$home_path = is_string( $home_path ) ? $this->normalize_path( $home_path ) : '/';
 
-		if ( is_string( $home_path ) && '/' !== $home_path && 0 === strpos( $path, $home_path ) ) {
-			$path = substr( $path, strlen( $home_path ) );
+		if ( '/' !== $home_path && ( $path === $home_path || 0 === strpos( $path, $home_path ) ) ) {
+			$path = substr( $path, strlen( untrailingslashit( $home_path ) ) );
 		}
 
 		return $this->normalize_path( $path );

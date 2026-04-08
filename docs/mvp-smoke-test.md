@@ -45,6 +45,7 @@ Use this checklist when validating the plugin inside a real WordPress install.
 4. Confirm a hierarchical CPT can be loaded through a full nested path slug if applicable.
 5. If testing Gutenberg-heavy pages, confirm the React frontend still renders the page structure coherently rather than falling back to a broken layout.
 6. If testing shortcode-heavy pages, confirm the frontend uses the expected HTML compatibility path rather than a broken block render.
+7. If testing WooCommerce shortcode routes, confirm the starter labels them as advanced compatibility routes rather than implying default starter parity.
 
 ## Starter export checks
 

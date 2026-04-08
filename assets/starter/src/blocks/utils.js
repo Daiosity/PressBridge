@@ -50,6 +50,21 @@ function parseBlockHtml(block) {
   return element;
 }
 
+function uniqueBy(items, getKey) {
+  const seen = new Set();
+
+  return items.filter((item) => {
+    const key = getKey(item);
+
+    if (!key || seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
+
 function getElementStyleMap(element) {
   const styleText = element?.getAttribute?.("style");
 
@@ -94,6 +109,25 @@ export function normalizeCssValue(value) {
   }
 
   return value;
+}
+
+function getPresetStyleValue(category, value) {
+  if (!value || typeof value !== "string") {
+    return undefined;
+  }
+
+  if (
+    value.startsWith("var(--") ||
+    value.startsWith("#") ||
+    value.startsWith("rgb") ||
+    value.startsWith("hsl") ||
+    value.startsWith("linear-gradient") ||
+    value.startsWith("radial-gradient")
+  ) {
+    return value;
+  }
+
+  return `var(--wp--preset--${category}--${value})`;
 }
 
 function applyBoxStyle(style, property, value) {
@@ -184,19 +218,32 @@ export function getDimensionStyle(dimensions = {}) {
   return Object.keys(style).length ? style : undefined;
 }
 
-export function getColorStyle(color = {}) {
-  if (!color || typeof color !== "object") {
-    return undefined;
-  }
-
+export function getColorStyle(block) {
+  const color = block?.attrs?.style?.color || {};
   const style = {};
+  const backgroundColor =
+    color.background ||
+    block?.attrs?.customBackgroundColor ||
+    getPresetStyleValue("color", block?.attrs?.backgroundColor);
+  const textColor =
+    color.text ||
+    block?.attrs?.customTextColor ||
+    getPresetStyleValue("color", block?.attrs?.textColor);
+  const gradient =
+    color.gradient ||
+    block?.attrs?.customGradient ||
+    getPresetStyleValue("gradient", block?.attrs?.gradient);
 
-  if (color.background) {
-    style.backgroundColor = color.background;
+  if (backgroundColor) {
+    style.backgroundColor = backgroundColor;
   }
 
-  if (color.text) {
-    style.color = color.text;
+  if (textColor) {
+    style.color = textColor;
+  }
+
+  if (gradient) {
+    style.backgroundImage = gradient;
   }
 
   return Object.keys(style).length ? style : undefined;
@@ -237,7 +284,7 @@ export function getBlockStyle(block) {
   return mergeStyles(
     getSpacingStyle(block?.attrs?.style?.spacing),
     getDimensionStyle(block?.attrs?.style?.dimensions),
-    getColorStyle(block?.attrs?.style?.color),
+    getColorStyle(block),
     getTypographyStyle(block)
   );
 }
@@ -258,7 +305,10 @@ export function getSeparatorStyle(block) {
   const borderColor =
     block?.attrs?.style?.color?.background ||
     block?.attrs?.style?.color?.text ||
-    block?.attrs?.backgroundColor;
+    block?.attrs?.customBackgroundColor ||
+    block?.attrs?.customTextColor ||
+    getPresetStyleValue("color", block?.attrs?.backgroundColor) ||
+    getPresetStyleValue("color", block?.attrs?.textColor);
   const opacity = block?.attrs?.opacity;
 
   if (borderColor) {
@@ -388,6 +438,34 @@ export function getImageData(block) {
   };
 }
 
+export function getGalleryItems(block) {
+  const parsed = parseBlockHtml(block);
+  const figures = Array.from(parsed?.querySelectorAll?.("figure") || []);
+  const looseImages = Array.from(parsed?.querySelectorAll?.("img") || []);
+  const figureItems = figures
+    .map((figure) => {
+      const image = figure.querySelector("img");
+
+      if (!image?.getAttribute("src")) {
+        return null;
+      }
+
+      return {
+        alt: image.getAttribute("alt") || "",
+        caption: figure.querySelector("figcaption")?.innerHTML || "",
+        url: image.getAttribute("src")
+      };
+    })
+    .filter(Boolean);
+  const looseItems = looseImages.map((image) => ({
+    alt: image.getAttribute("alt") || "",
+    caption: "",
+    url: image.getAttribute("src") || ""
+  }));
+
+  return uniqueBy([...figureItems, ...looseItems], (item) => item?.url);
+}
+
 export function getImageStyle(block) {
   const image = getImageData(block);
   const attrs = block?.attrs || {};
@@ -425,23 +503,31 @@ export function getMediaTextData(block) {
   const parsed = parseBlockHtml(block);
   const mediaImage = parsed?.querySelector(".wp-block-media-text__media img");
   const mediaVideo = parsed?.querySelector(".wp-block-media-text__media video");
+  const mediaSource = mediaVideo?.querySelector("source");
   const mediaLink = parsed?.querySelector(".wp-block-media-text__media a");
+  const contentContainer = parsed?.querySelector(".wp-block-media-text__content");
+  const root = parsed?.firstElementChild;
 
   return {
     alt: mediaImage?.getAttribute("alt") || "",
+    contentHtml: contentContainer?.innerHTML || "",
     mediaPosition:
       attrs.mediaPosition ||
-      (parsed?.querySelector(".has-media-on-the-right") || parsed?.firstElementChild?.classList?.contains("has-media-on-the-right")
+      (parsed?.querySelector(".has-media-on-the-right") || root?.classList?.contains("has-media-on-the-right")
         ? "right"
         : "left"),
     mediaWidth: Number(attrs.mediaWidth || 50),
     mediaUrl:
       mediaImage?.getAttribute("src") ||
       mediaVideo?.getAttribute("src") ||
+      mediaSource?.getAttribute("src") ||
       mediaLink?.getAttribute("href") ||
       "",
     mediaType: mediaVideo ? "video" : "image",
-    stackedOnMobile: Boolean(attrs.isStackedOnMobile)
+    stackedOnMobile:
+      Boolean(attrs.isStackedOnMobile) ||
+      Boolean(root?.classList?.contains("is-stacked-on-mobile")) ||
+      Boolean(root?.classList?.contains("is-stacked-on-mobile-on"))
   };
 }
 
@@ -454,5 +540,62 @@ export function getButtonData(block) {
     target: attrs.linkTarget || anchor?.getAttribute("target") || "",
     text: anchor ? (anchor.textContent || "").trim() : getBlockText(block),
     url: attrs.url || anchor?.getAttribute("href") || ""
+  };
+}
+
+export function getButtonsData(block) {
+  const parsed = parseBlockHtml(block);
+  const root = parsed?.firstElementChild;
+  const anchors = Array.from(parsed?.querySelectorAll?.("a") || []);
+
+  return {
+    buttons: anchors
+      .map((anchor) => ({
+        target: anchor.getAttribute("target") || "",
+        text: (anchor.textContent || "").trim(),
+        url: anchor.getAttribute("href") || ""
+      }))
+      .filter((item) => item.url && item.text),
+    justifyContent:
+      root?.classList?.contains("is-content-justification-center")
+        ? "center"
+        : root?.classList?.contains("is-content-justification-right")
+          ? "flex-end"
+          : root?.classList?.contains("is-content-justification-space-between")
+            ? "space-between"
+            : undefined,
+    orientation:
+      root?.classList?.contains("is-vertical") || block?.attrs?.layout?.orientation === "vertical"
+        ? "vertical"
+        : "horizontal"
+  };
+}
+
+export function getCoverData(block) {
+  const attrs = block?.attrs || {};
+  const parsed = parseBlockHtml(block);
+  const root = parsed?.firstElementChild;
+  const backgroundImage =
+    attrs.url ||
+    parsed?.querySelector(".wp-block-cover__image-background")?.getAttribute("src") ||
+    parsed?.querySelector("img")?.getAttribute("src") ||
+    "";
+  const backgroundVideo =
+    parsed?.querySelector("video")?.getAttribute("src") ||
+    parsed?.querySelector("video source")?.getAttribute("src") ||
+    "";
+  const contentHtml =
+    parsed?.querySelector(".wp-block-cover__inner-container")?.innerHTML ||
+    "";
+
+  return {
+    backgroundImage,
+    backgroundVideo,
+    contentHtml,
+    dimRatio: Number(attrs.dimRatio ?? 50),
+    overlayColor: attrs.overlayColor || attrs.customOverlayColor || "#17324d",
+    minHeight: attrs.minHeight
+      ? normalizeCssValue(attrs.minHeight)
+      : getElementStyleMap(root)?.["min-height"] || undefined
   };
 }

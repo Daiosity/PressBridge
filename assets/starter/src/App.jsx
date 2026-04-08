@@ -909,6 +909,46 @@ function BridgeStatus({ site, pages, posts }) {
   );
 }
 
+function CompatibilityNotice({ content }) {
+  const compatibility = content?.compatibility;
+
+  if (!compatibility?.is_shortcode_content) {
+    return null;
+  }
+
+  const isWoo = Boolean(compatibility?.is_woocommerce_shortcode_page);
+  const tags = Array.isArray(compatibility?.shortcodes) ? compatibility.shortcodes.filter(Boolean) : [];
+  const sourceLabel = isWoo ? "WooCommerce compatibility" : "HTML compatibility";
+  const detail =
+    tags.length > 0 ? `Shortcodes detected: ${tags.join(", ")}` : "Server-rendered compatibility mode is active.";
+
+  return (
+    <section className="content-card compatibility-card">
+      <p className="eyebrow">{sourceLabel}</p>
+      <h2>
+        {isWoo
+          ? "This route is using the advanced WooCommerce compatibility path."
+          : "This route is using the HTML compatibility path instead of normal block rendering."}
+      </h2>
+      <p className="lede">
+        {isWoo
+          ? "PressBridge is rendering server-side WooCommerce output for this route so the starter can keep working without pretending WooCommerce is a normal starter-level content type."
+          : "PressBridge is rendering server-side HTML for this route because block translation is not the right fit for the content it contains."}
+      </p>
+      <div className="status-chip-row">
+        <span className="status-chip">Render mode: {content?.render_mode || "html"}</span>
+        <span className="status-chip">{isWoo ? "Advanced feature path" : "Compatibility route"}</span>
+      </div>
+      <p className="inline-note">
+        {detail}{" "}
+        {isWoo
+          ? "WooCommerce cart and checkout flows are easiest when the public frontend and store share the same primary domain."
+          : "This keeps the route functional while the richer compatibility story is still being hardened."}
+      </p>
+    </section>
+  );
+}
+
 function formatPreviewTime(value) {
   if (!value) {
     return "";
@@ -1154,7 +1194,10 @@ export default function App() {
         {routeData?.is_preview ? <PreviewBanner content={routeData} currentPath={currentPath} /> : null}
         {isHomeRoute(routeData) ? <HomeExperience site={site} route={routeData} pages={pages} posts={posts} /> : null}
         {routeData?.route_type === "singular" && !isHomeRoute(routeData) ? (
-          <ContentView content={routeData} />
+          <>
+            <CompatibilityNotice content={routeData} />
+            <ContentView content={routeData} />
+          </>
         ) : null}
         {routeData?.route_type === "archive" && routeData?.path !== "/" ? <ArchiveView route={routeData} /> : null}
         {!routeLoading && !routeData ? <EmptyRoute /> : null}

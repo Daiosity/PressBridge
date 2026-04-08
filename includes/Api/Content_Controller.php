@@ -247,21 +247,15 @@ class Content_Controller {
 			return rest_ensure_response( $archive );
 		}
 
-		$post_id = url_to_postid( home_url( $path ) );
+		$post = $this->resolve_singular_route( $path );
 
-		if ( ! $post_id && '/' === $path && 'page' === get_option( 'show_on_front' ) ) {
-			$post_id = (int) get_option( 'page_on_front' );
-		}
-
-		if ( ! $post_id ) {
+		if ( ! $post instanceof WP_Post ) {
 			return new WP_Error(
 				'wtr_route_not_found',
 					__( 'No page or post matches the requested path.', 'pressbridge' ),
 				array( 'status' => 404 )
 			);
 		}
-
-		$post = get_post( $post_id );
 
 		if ( ! $post instanceof WP_Post || 'publish' !== $post->post_status ) {
 			return new WP_Error(
@@ -361,7 +355,7 @@ class Content_Controller {
 	 * @return string
 	 */
 	public function sanitize_path( $path ) {
-		return $this->path_helper->normalize_path( $path );
+		return $this->path_helper->strip_home_path_prefix( $path );
 	}
 
 	/**
@@ -458,6 +452,48 @@ class Content_Controller {
 		$response->header( 'X-WP-TotalPages', (int) $query->max_num_pages );
 
 		return $response;
+	}
+
+	/**
+	 * Resolve a singular route using permalink resolution with a safe hierarchical fallback.
+	 *
+	 * @param string $path Normalized route path.
+	 * @return WP_Post|null
+	 */
+	private function resolve_singular_route( $path ) {
+		$post_id = url_to_postid( home_url( $path ) );
+
+		if ( ! $post_id && '/' === $path && 'page' === get_option( 'show_on_front' ) ) {
+			$post_id = (int) get_option( 'page_on_front' );
+		}
+
+		if ( $post_id ) {
+			$post = get_post( $post_id );
+
+			if ( $post instanceof WP_Post ) {
+				return $post;
+			}
+		}
+
+		$slug_path = trim( (string) $path, '/' );
+
+		if ( '' === $slug_path ) {
+			return null;
+		}
+
+		foreach ( $this->post_type_service->get_supported_post_types() as $post_type => $definition ) {
+			if ( empty( $definition['hierarchical'] ) ) {
+				continue;
+			}
+
+			$post = get_page_by_path( $slug_path, OBJECT, $post_type );
+
+			if ( $post instanceof WP_Post && 'publish' === $post->post_status ) {
+				return $post;
+			}
+		}
+
+		return null;
 	}
 
 	/**

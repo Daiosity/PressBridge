@@ -60,3 +60,4 @@ Before calling the build "alpha-ready", confirm:
 3. The frontend starter and smoke frontend are still behaviorally aligned with the plugin.
 4. Known limitations in `README.md` are still honest.
 5. Any WooCommerce compatibility work is still framed as an advanced compatibility layer, not a default starter guarantee.
+6. `docs/core-roadmap.md` still reflects the current beta-ready priorities and premium boundaries.

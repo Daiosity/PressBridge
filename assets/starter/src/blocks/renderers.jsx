@@ -3,8 +3,10 @@ import {
   blockClasses,
   getBlockStyle,
   getButtonData,
+  getButtonsData,
   getBlockHtml,
   getColumnStyle,
+  getCoverData,
   getCoverOverlayStyle,
   getCoverStyle,
   getFlexLayoutStyle,
@@ -12,6 +14,7 @@ import {
   getImageData,
   getImageStyle,
   getImageWrapperStyle,
+  getGalleryItems,
   getMediaTextData,
   getSeparatorStyle,
   getSpacingStyle,
@@ -66,6 +69,35 @@ function getGroupInnerLayout(block) {
 
 function getGroupStyle(block) {
   return getBlockStyle(block);
+}
+
+function isStructuralWrapperGroup(block) {
+  if ("core/group" !== block?.name) {
+    return false;
+  }
+
+  const children = block?.inner_blocks || [];
+
+  if (children.length !== 1) {
+    return false;
+  }
+
+  const layout = block?.attrs?.layout || {};
+  const className = block?.attrs?.className || "";
+  const style = block?.attrs?.style || {};
+  const align = block?.attrs?.align;
+  const childName = children[0]?.name || "";
+  const visualPresentation = Boolean(
+    align ||
+      className.includes("is-style-") ||
+      style?.dimensions?.minHeight ||
+      style?.spacing?.padding ||
+      style?.color?.background ||
+      style?.color?.gradient
+  );
+  const supportedChild = ["core/group", "core/columns", "core/media-text", "core/cover", "core/gallery"].includes(childName);
+
+  return !visualPresentation && !layout?.type && supportedChild;
 }
 
 function isTextLikeBlock(block) {
@@ -185,8 +217,32 @@ function ImageRenderer({ block }) {
 }
 
 function GalleryRenderer({ block, renderBlocks }) {
-  if (!block?.inner_blocks?.length) {
+  const fallbackItems = getGalleryItems(block);
+
+  if (!block?.inner_blocks?.length && !fallbackItems.length) {
     return <HtmlRenderer block={block} />;
+  }
+
+  if (!block?.inner_blocks?.length && fallbackItems.length) {
+    return (
+      <Grid
+        className={blockClasses(block, "pressbridge-gallery")}
+        columns={Math.max(1, Number(block?.attrs?.columns || fallbackItems.length || 1))}
+        style={getGalleryStyle(block)}
+      >
+        {fallbackItems.map((item) => (
+          <Media
+            key={item.url}
+            className={blockClasses(block, "pressbridge-image-block")}
+            src={item.url}
+            alt={item.alt}
+            caption={item.caption}
+            style={getImageWrapperStyle(block)}
+            imageStyle={getImageStyle({ attrs: {} })}
+          />
+        ))}
+      </Grid>
+    );
   }
 
   return (
@@ -229,7 +285,13 @@ function MediaTextRenderer({ block, renderBlocks }) {
         )}
       </Container>
       <Container className="pressbridge-media-text__content">
-        {block?.inner_blocks?.length ? renderBlocks(block.inner_blocks) : <HtmlRenderer block={block} />}
+        {block?.inner_blocks?.length ? (
+          renderBlocks(block.inner_blocks)
+        ) : media.contentHtml ? (
+          <RichText className="pressbridge-html-block" html={media.contentHtml} />
+        ) : (
+          <HtmlRenderer block={block} />
+        )}
       </Container>
     </Section>
   );
@@ -238,6 +300,10 @@ function MediaTextRenderer({ block, renderBlocks }) {
 function GroupRenderer({ block, renderBlocks }) {
   if (!block?.inner_blocks?.length) {
     return <HtmlRenderer block={block} />;
+  }
+
+  if (isStructuralWrapperGroup(block)) {
+    return renderBlocks(block.inner_blocks);
   }
 
   const { introBlock, layoutBlock } = getGroupLayoutParts(block);
@@ -291,12 +357,40 @@ function ColumnRenderer({ block, renderBlocks }) {
 }
 
 function ButtonsRenderer({ block, renderBlocks }) {
-  if (!block?.inner_blocks?.length) {
+  const fallbackButtons = getButtonsData(block);
+
+  if (!block?.inner_blocks?.length && !fallbackButtons.buttons.length) {
     return <HtmlRenderer block={block} />;
   }
 
+  const classNames = [
+    blockClasses(block, "pressbridge-buttons"),
+    fallbackButtons.orientation === "vertical" ? "pressbridge-buttons--vertical" : ""
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const style = fallbackButtons.justifyContent ? { justifyContent: fallbackButtons.justifyContent } : undefined;
+
+  if (!block?.inner_blocks?.length && fallbackButtons.buttons.length) {
+    return (
+      <ButtonGroup className={classNames} style={style}>
+        {fallbackButtons.buttons.map((button) => (
+          <a
+            key={`${button.url}-${button.text}`}
+            className="pressbridge-button__link"
+            href={button.url}
+            target={button.target || undefined}
+            rel={button.target === "_blank" ? "noreferrer" : undefined}
+          >
+            {button.text}
+          </a>
+        ))}
+      </ButtonGroup>
+    );
+  }
+
   return (
-    <ButtonGroup className={blockClasses(block, "pressbridge-buttons")}>
+    <ButtonGroup className={classNames} style={style}>
       {renderBlocks(block.inner_blocks)}
     </ButtonGroup>
   );
@@ -331,16 +425,32 @@ function QuoteRenderer({ block }) {
 
 function CoverRenderer({ block, renderBlocks }) {
   const style = getCoverStyle(block);
+  const cover = getCoverData(block);
 
-  if (!block?.inner_blocks?.length && !style.backgroundImage) {
+  if (!block?.inner_blocks?.length && !style.backgroundImage && !cover.backgroundVideo && !cover.contentHtml) {
     return <HtmlRenderer block={block} />;
   }
 
   return (
-    <Section className={blockClasses(block, "pressbridge-cover")} style={style}>
-      <span className="pressbridge-cover__overlay" style={getCoverOverlayStyle(block)} aria-hidden="true" />
+    <Section
+      className={blockClasses(block, "pressbridge-cover", cover.backgroundVideo ? "pressbridge-cover--video" : "")}
+      style={{
+        ...style,
+        ...(cover.backgroundImage ? { backgroundImage: `url("${cover.backgroundImage}")` } : {})
+      }}
+    >
+      {cover.backgroundVideo ? (
+        <video className="pressbridge-cover__media" autoPlay muted loop playsInline aria-hidden="true">
+          <source src={cover.backgroundVideo} />
+        </video>
+      ) : null}
+      <span className="pressbridge-cover__overlay" style={getCoverOverlayStyle({ attrs: cover })} aria-hidden="true" />
       <Container className="pressbridge-cover__content">
-        {block?.inner_blocks?.length ? renderBlocks(block.inner_blocks) : null}
+        {block?.inner_blocks?.length ? (
+          renderBlocks(block.inner_blocks)
+        ) : cover.contentHtml ? (
+          <RichText className="pressbridge-html-block" html={cover.contentHtml} />
+        ) : null}
       </Container>
     </Section>
   );

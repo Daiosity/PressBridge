@@ -754,6 +754,11 @@ a {
   border-color: rgba(240, 189, 57, 0.24);
 }
 
+.content-card.compatibility-card {
+  background: linear-gradient(180deg, rgba(23, 39, 74, 0.96) 0%, rgba(17, 28, 55, 0.92) 100%);
+  border-color: rgba(103, 152, 255, 0.22);
+}
+
 .content-card--document {
   --pressbridge-card-padding: clamp(14px, 1.8vw, 20px);
   --pressbridge-content-width: 1140px;

@@ -197,5 +197,7 @@ Live demo behavior in this repo already shows the main idea:
 ## Supporting Docs
 
 - [Local development flow](docs/local-dev.md)
+- [Current feature status](docs/current-feature-status.md)
+- [Core roadmap](docs/core-roadmap.md)
 - [MVP smoke test](docs/mvp-smoke-test.md)
 - [Release checklist](docs/release-checklist.md)
