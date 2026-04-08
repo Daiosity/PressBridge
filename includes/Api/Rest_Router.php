@@ -55,6 +55,7 @@ class Rest_Router {
 	 */
 	public function register_hooks() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		add_filter( 'rest_pre_serve_request', array( $this, 'send_frontend_cors_headers' ), 10, 4 );
 	}
 
 	/**
@@ -74,5 +75,46 @@ class Rest_Router {
 		foreach ( $controllers as $controller ) {
 			$controller->register_routes();
 		}
+	}
+
+	/**
+	 * Send credential-friendly CORS headers for the configured frontend app.
+	 *
+	 * @param bool              $served  Whether the request has already been served.
+	 * @param \WP_HTTP_Response $result  Result to send to the client.
+	 * @param \WP_REST_Request  $request Request used to generate the response.
+	 * @param \WP_REST_Server   $server  Server instance.
+	 * @return bool
+	 */
+	public function send_frontend_cors_headers( $served, $result, $request, $server ) {
+		if ( 0 !== strpos( $request->get_route(), '/' . Site_Controller::NAMESPACE . '/' ) ) {
+			return $served;
+		}
+
+		$origin         = isset( $_SERVER['HTTP_ORIGIN'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_ORIGIN'] ) ) : '';
+		$frontend_url   = $this->settings->get_frontend_url();
+		$frontend_parts = $frontend_url ? wp_parse_url( $frontend_url ) : array();
+
+		if ( empty( $origin ) || empty( $frontend_parts['scheme'] ) || empty( $frontend_parts['host'] ) ) {
+			return $served;
+		}
+
+		$allowed_origin = $frontend_parts['scheme'] . '://' . $frontend_parts['host'];
+
+		if ( ! empty( $frontend_parts['port'] ) ) {
+			$allowed_origin .= ':' . absint( $frontend_parts['port'] );
+		}
+
+		if ( untrailingslashit( $origin ) !== untrailingslashit( $allowed_origin ) ) {
+			return $served;
+		}
+
+		header( 'Access-Control-Allow-Origin: ' . $allowed_origin );
+		header( 'Access-Control-Allow-Credentials: true' );
+		header( 'Access-Control-Allow-Methods: GET, OPTIONS' );
+		header( 'Access-Control-Allow-Headers: Content-Type, X-WP-Nonce' );
+		header( 'Vary: Origin', false );
+
+		return $served;
 	}
 }

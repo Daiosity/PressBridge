@@ -1,19 +1,19 @@
 # PressBridge Frontend
 
-This frontend expects a local WordPress site such as `http://pressbridge.local`.
+This frontend expects the repo's Local WordPress site at `http://wp-to-react.local` unless you have renamed it.
 
 ## Quick start
 
 1. Install dependencies with `npm install`
-2. Confirm your local API base points to `http://pressbridge.local/wp-json/pressbridge/v1`
+2. Confirm your local API base points to `http://wp-to-react.local/wp-json/pressbridge/v1`
 3. Start the dev server with `npm run dev`
 4. Open `http://localhost:5173`
 5. Once the app renders correctly, switch the plugin route mode to React redirect for full handoff testing
 
 ## Notes
 
-- API base: `http://pressbridge.local/wp-json/pressbridge/v1`
-- WordPress site: `http://pressbridge.local`
+- API base: `http://wp-to-react.local/wp-json/pressbridge/v1`
+- WordPress site: `http://wp-to-react.local`
 - Frontend URL configured in WordPress: `http://localhost:5173`
 
 ## Production hosting
@@ -28,6 +28,11 @@ Use static hosting for MVP and configure rewrites so every frontend route falls 
 - Generic public post type support through the plugin API
 - Preview token support
 - A small fetch layer for the plugin REST endpoints
+- A generic PressBridge starter shell rather than a site-specific theme
+
+## Advanced compatibility
+
+WooCommerce compatibility is being treated as an advanced layer, not the default starter promise. The starter can render compatibility-heavy HTML routes, but full commerce UX should be treated as a separate implementation concern.
 
 ## Current local setup
 

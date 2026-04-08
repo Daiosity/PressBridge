@@ -9,7 +9,7 @@ Use this checklist when validating the plugin inside a real WordPress install.
 3. Visit `Settings > PressBridge`.
 4. Save a frontend URL such as `http://localhost:5173`.
 5. Confirm the Connection Status panel updates as expected.
-6. If using the repo's Local site, confirm your local WordPress URL, for example `http://pressbridge.local`, is running before frontend checks.
+6. If using the repo's Local site, confirm `http://wp-to-react.local` is running before frontend checks.
 
 ## REST checks
 
@@ -44,6 +44,7 @@ Use this checklist when validating the plugin inside a real WordPress install.
 3. Confirm a custom post type entry can be loaded through `content?type=your_type&slug=entry-slug`.
 4. Confirm a hierarchical CPT can be loaded through a full nested path slug if applicable.
 5. If testing Gutenberg-heavy pages, confirm the React frontend still renders the page structure coherently rather than falling back to a broken layout.
+6. If testing shortcode-heavy pages, confirm the frontend uses the expected HTML compatibility path rather than a broken block render.
 
 ## Starter export checks
 
@@ -51,3 +52,4 @@ Use this checklist when validating the plugin inside a real WordPress install.
 2. Confirm `src/config/wp-config.json` is present in the archive.
 3. Run `npm install` and `npm run dev`.
 4. Confirm the starter can load menus and route-resolved content from WordPress.
+5. Confirm the starter still feels generic and product-facing rather than shipping site-specific branding or content.

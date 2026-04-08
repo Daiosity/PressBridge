@@ -1,12 +1,91 @@
 const { useEffect, useMemo, useState } = React;
+const { BrowserRouter, Link, useLocation } = ReactRouterDOM;
 
-const API_BASE = "http://pressbridge.local/wp-json/pressbridge/v1";
+const SITE_TITLE = "PressBridge";
+const SITE_TAGLINE = "Connect WordPress to modern frontends.";
+const DEFAULT_API_BASE = "http://wp-to-react.local/wp-json/pressbridge/v1";
+const CACHE_PREFIX = "pressbridge-lite:";
+const memoryCache = new Map();
+const SESSION_ROUTE_PATTERNS = [/^\/cart\/?$/i, /^\/checkout\/?$/i, /^\/my-account\/?$/i];
+
+const STARTER_HOME = {
+  eyebrow: "Headless-ready WordPress",
+  title: "Same WordPress content. Better frontend.",
+  intro:
+    "PressBridge keeps WordPress as the CMS while React handles the public presentation layer. This lightweight frontend is here for smoke testing route resolution, preview flow, and starter rendering without a build step.",
+  note:
+    "Use the Vite app for long-term frontend work. Use this lite app when you want a quick local check that the bridge is working."
+};
+
+function getApiBase() {
+  const params = new URLSearchParams(window.location.search);
+  const fromQuery = params.get("apiBase");
+
+  if (fromQuery) {
+    window.sessionStorage.setItem(`${CACHE_PREFIX}apiBase`, fromQuery.replace(/\/$/, ""));
+    return fromQuery.replace(/\/$/, "");
+  }
+
+  const stored = window.sessionStorage.getItem(`${CACHE_PREFIX}apiBase`);
+  return (stored || DEFAULT_API_BASE).replace(/\/$/, "");
+}
+
+function buildCacheKey(key) {
+  return `${CACHE_PREFIX}${key}`;
+}
+
+function readCache(key, maxAgeMs = 0) {
+  const cacheKey = buildCacheKey(key);
+  const inMemory = memoryCache.get(cacheKey);
+
+  if (inMemory && (!maxAgeMs || Date.now() - inMemory.timestamp <= maxAgeMs)) {
+    return inMemory.value;
+  }
+
+  try {
+    const raw = window.sessionStorage.getItem(cacheKey);
+
+    if (!raw) {
+      return null;
+    }
+
+    const parsed = JSON.parse(raw);
+
+    if (maxAgeMs && Date.now() - parsed.timestamp > maxAgeMs) {
+      window.sessionStorage.removeItem(cacheKey);
+      return null;
+    }
+
+    memoryCache.set(cacheKey, parsed);
+    return parsed.value;
+  } catch (error) {
+    return null;
+  }
+}
+
+function writeCache(key, value) {
+  const cacheKey = buildCacheKey(key);
+  const entry = { value, timestamp: Date.now() };
+  memoryCache.set(cacheKey, entry);
+
+  try {
+    window.sessionStorage.setItem(cacheKey, JSON.stringify(entry));
+  } catch (error) {
+    // Ignore sessionStorage write failures.
+  }
+}
+
+function isSessionSensitivePath(pathname = "") {
+  return SESSION_ROUTE_PATTERNS.some((pattern) => pattern.test(pathname));
+}
 
 async function apiFetch(path) {
+  const apiBase = getApiBase();
   let response;
 
   try {
-    response = await fetch(`${API_BASE}${path}`, {
+    response = await fetch(`${apiBase}${path}`, {
+      credentials: "include",
       headers: {
         Accept: "application/json"
       }
@@ -35,38 +114,74 @@ async function apiFetch(path) {
   try {
     return await response.json();
   } catch (parseError) {
-    const error = new Error("The PressBridge API returned an invalid JSON response.");
-    error.status = response.status;
-    throw error;
+    throw new Error("The PressBridge API returned an invalid JSON response.");
   }
 }
 
-function navigate(path) {
-  window.history.pushState({}, "", path);
-  window.dispatchEvent(new PopStateEvent("popstate"));
+async function cachedApiFetch(path, { cacheKey, maxAgeMs = 0 } = {}) {
+  if (cacheKey) {
+    const cached = readCache(cacheKey, maxAgeMs);
+
+    if (cached) {
+      return cached;
+    }
+  }
+
+  const data = await apiFetch(path);
+
+  if (cacheKey) {
+    writeCache(cacheKey, data);
+  }
+
+  return data;
 }
 
-function AppLink({ href, children, className = "", target = "" }) {
-  return (
-    <a
-      href={href}
-      className={className}
-      target={target || undefined}
-      rel={target === "_blank" ? "noreferrer" : undefined}
-      onClick={(event) => {
-        const url = new URL(href, window.location.origin);
+function fetchSiteConfig() {
+  return cachedApiFetch("/site", { cacheKey: "site", maxAgeMs: 1000 * 60 * 10 });
+}
 
-        if (target === "_blank" || url.origin !== window.location.origin) {
-          return;
-        }
+function fetchMenus() {
+  return cachedApiFetch("/menus", { cacheKey: "menus", maxAgeMs: 1000 * 60 * 10 });
+}
 
-        event.preventDefault();
-        navigate(url.pathname + url.search);
-      }}
-    >
-      {children}
-    </a>
-  );
+function fetchPages() {
+  return cachedApiFetch("/pages?per_page=10", { cacheKey: "pages", maxAgeMs: 1000 * 60 * 5 });
+}
+
+function fetchPosts() {
+  return cachedApiFetch("/posts?per_page=10", { cacheKey: "posts", maxAgeMs: 1000 * 60 * 5 });
+}
+
+function fetchPreviewContent(token) {
+  return apiFetch(`/preview/${encodeURIComponent(token)}`);
+}
+
+function resolveContent(pathname) {
+  if (isSessionSensitivePath(pathname)) {
+    return apiFetch(`/resolve?path=${encodeURIComponent(pathname)}`);
+  }
+
+  return cachedApiFetch(`/resolve?path=${encodeURIComponent(pathname)}`, {
+    cacheKey: `resolve:${pathname}`,
+    maxAgeMs: 1000 * 60 * 5
+  });
+}
+
+function getCachedBootData() {
+  return {
+    site: readCache("site", 1000 * 60 * 10),
+    menus: readCache("menus", 1000 * 60 * 10),
+    pages: readCache("pages", 1000 * 60 * 5),
+    posts: readCache("posts", 1000 * 60 * 5)
+  };
+}
+
+function getCachedResolvedRoute(pathname) {
+  if (isSessionSensitivePath(pathname)) {
+    return null;
+  }
+
+  return readCache(`resolve:${pathname}`, 1000 * 60 * 5);
 }
 
 function getSiteOrigin(siteHomeUrl) {
@@ -116,20 +231,60 @@ function getPreferredMenu(menus, preferredLocations = []) {
   return firstAssigned ? firstAssigned.menu : null;
 }
 
+function isStarterPlaceholderContent(item) {
+  if (!item) {
+    return false;
+  }
+
+  const slug = String(item.slug || "").trim().toLowerCase();
+  const title = String(item.title || "").trim().toLowerCase();
+
+  return slug === "hello-world" || title === "hello world!" || title === "hello world";
+}
+
+function isUtilityPath(path = "") {
+  return ["/cart", "/cart/", "/checkout", "/checkout/", "/checkout/confirmation", "/checkout/confirmation/", "/my-account", "/my-account/"].includes(path);
+}
+
+function isUtilityPage(page) {
+  return isUtilityPath(page?.path || "") || ["cart", "checkout", "confirmation", "my-account"].includes(page?.slug || "");
+}
+
 function buildFallbackLinks(pages, posts) {
   const links = [{ id: "home", title: "Home", href: "/" }];
 
-  if (posts.length) {
-    links.push({ id: "blog", title: "Blog", href: "/" });
+  pages
+    .filter((page) => !isUtilityPage(page) && page.path !== "/")
+    .slice(0, 4)
+    .forEach((page) => {
+      links.push({ id: `page-${page.id}`, title: page.title, href: page.path });
+    });
+
+  if (posts.some((item) => !isStarterPlaceholderContent(item))) {
+    links.push({ id: "updates", title: "Updates", href: "/" });
   }
 
-  pages.slice(0, 4).forEach((page) => {
-    links.push({ id: `page-${page.id}`, title: page.title, href: page.path });
+  return links.filter((item, index, items) => items.findIndex((candidate) => candidate.href === item.href) === index);
+}
+
+function buildFeaturedPages(pages) {
+  const preferred = ["test-page", "sample-page", "about", "blog"];
+  const selected = [];
+
+  preferred.forEach((slug) => {
+    const page = pages.find((item) => item.slug === slug);
+    if (page && !isUtilityPage(page) && !selected.some((item) => item.id === page.id)) {
+      selected.push(page);
+    }
   });
 
-  return links.filter(
-    (item, index, items) => items.findIndex((candidate) => candidate.href === item.href) === index
-  );
+  pages.forEach((page) => {
+    if (!selected.some((item) => item.id === page.id) && page.path !== "/" && !isUtilityPage(page)) {
+      selected.push(page);
+    }
+  });
+
+  return selected.slice(0, 4);
 }
 
 function describeRouteMode(site) {
@@ -137,125 +292,146 @@ function describeRouteMode(site) {
     return "WordPress safe mode";
   }
 
-  return site.route_handling_mode === "redirect"
-    ? "Redirect handoff enabled"
-    : "WordPress safe mode";
+  return site.route_handling_mode === "redirect" ? "Redirect handoff enabled" : "WordPress safe mode";
+}
+
+function isHomeRoute(route) {
+  if (!route) {
+    return false;
+  }
+
+  if (route.route_type === "archive" && route.path === "/") {
+    return true;
+  }
+
+  return route.route_type === "singular" && route.post_type === "page" && (route.is_front_page || route.path === "/" || route.slug === "home");
+}
+
+function routeMatchesPath(route, pathname) {
+  if (!route) {
+    return false;
+  }
+
+  return route.path ? route.path === pathname : route.route_type === "archive" && route.path === pathname;
+}
+
+function getDocumentTitle(route, pathname = "") {
+  const normalizedPath = pathname.replace(/\/+$/, "") || "/";
+
+  if (normalizedPath === "/") {
+    return SITE_TITLE;
+  }
+
+  if (!route) {
+    return SITE_TITLE;
+  }
+
+  if (isHomeRoute(route)) {
+    return SITE_TITLE;
+  }
+
+  if (route.route_type === "singular" && route.title) {
+    return `${route.title} | ${SITE_TITLE}`;
+  }
+
+  if (route.route_type === "archive") {
+    return `${route.title || route.label || "Archive"} | ${SITE_TITLE}`;
+  }
+
+  return SITE_TITLE;
+}
+
+function renderHtml(content) {
+  return { __html: content || "" };
+}
+
+function BlockContent({ content }) {
+  const htmlClassName = [
+    "content-body",
+    "content-body-html",
+    content?.compatibility?.is_shortcode_content ? "content-body-html--shortcode" : "",
+    content?.compatibility?.is_woocommerce_shortcode_page ? "content-body-html--woocommerce" : ""
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return <div className={htmlClassName} dangerouslySetInnerHTML={renderHtml(content?.content)} />;
 }
 
 function MenuAnchor({ item, siteHomeUrl, className = "nav-link" }) {
   const link = getMenuLink(item, siteHomeUrl);
 
-  return (
-    <AppLink
-      className={className}
-      href={link.href}
-      target={link.internal ? "" : link.target || "_blank"}
-    >
-      {item.title}
-    </AppLink>
-  );
+  if (link.internal) {
+    return <Link className={className} to={link.href}>{item.title}</Link>;
+  }
+
+  return <a className={className} href={link.href} target={link.target || "_self"} rel={link.target === "_blank" ? "noreferrer" : undefined}>{item.title}</a>;
 }
 
-function MenuItem({ item, siteHomeUrl }) {
-  const hasChildren = Boolean(item.children?.length);
+function Navigation({ menus, pages, posts }) {
+  const preferredMenu = getPreferredMenu(menus, ["primary", "header", "menu-1", "main"]);
+  const siteHomeUrl = readCache("site", 1000 * 60 * 10)?.home_url || "";
 
-  return (
-    <li className={`nav-item${hasChildren ? " has-children" : ""}`}>
-      <MenuAnchor item={item} siteHomeUrl={siteHomeUrl} />
-      {hasChildren ? (
-        <ul className="submenu">
-          {item.children.map((child) => (
-            <MenuItem key={child.id} item={child} siteHomeUrl={siteHomeUrl} />
-          ))}
-        </ul>
-      ) : null}
-    </li>
-  );
-}
-
-function FallbackNavigation({ items }) {
-  return (
-    <ul className="nav-list">
-      {items.map((item) => (
-        <li key={item.id} className="nav-item">
-          <AppLink className="nav-link" href={item.href}>
-            {item.title}
-          </AppLink>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function Navigation({ menus, siteHomeUrl, pages, posts }) {
-  const primaryMenu = getPreferredMenu(menus, ["primary", "header", "main", "menu-1"]);
-  const fallbackLinks = buildFallbackLinks(pages, posts);
-
-  return (
-    <nav className="site-nav" aria-label="Primary navigation">
-      {primaryMenu?.items?.length ? (
-        <ul className="nav-list">
-          {primaryMenu.items.map((item) => (
-            <MenuItem key={item.id} item={item} siteHomeUrl={siteHomeUrl} />
-          ))}
-        </ul>
-      ) : (
-        <FallbackNavigation items={fallbackLinks} />
-      )}
-    </nav>
-  );
-}
-
-function FooterNavigation({ menus, siteHomeUrl, pages, posts }) {
-  const footerMenu = getPreferredMenu(menus, ["footer", "secondary", "footer-menu", "menu-2"]);
-  const fallbackLinks = buildFallbackLinks(pages, posts).slice(0, 5);
-
-  if (footerMenu?.items?.length) {
+  if (preferredMenu?.items?.length) {
     return (
-      <ul className="footer-links">
-        {footerMenu.items.map((item) => (
-          <li key={item.id}>
-            <MenuAnchor item={item} siteHomeUrl={siteHomeUrl} className="footer-link" />
-          </li>
-        ))}
-      </ul>
+      <nav className="site-nav" aria-label="Primary navigation">
+        <ul className="nav-list">
+          {preferredMenu.items
+            .filter((item) => !isUtilityPath(getMenuLink(item, siteHomeUrl).href.split("?")[0]))
+            .map((item) => (
+              <li key={item.id} className="nav-item">
+                <MenuAnchor item={item} siteHomeUrl={siteHomeUrl} />
+              </li>
+            ))}
+        </ul>
+      </nav>
     );
   }
 
   return (
-    <ul className="footer-links">
-      {fallbackLinks.map((item) => (
-        <li key={item.id}>
-          <AppLink className="footer-link" href={item.href}>
-            {item.title}
-          </AppLink>
-        </li>
-      ))}
-    </ul>
+    <nav className="site-nav" aria-label="Primary navigation">
+      <ul className="nav-list">
+        {buildFallbackLinks(pages, posts).map((item) => (
+          <li key={item.id} className="nav-item">
+            <Link className="nav-link" to={item.href}>{item.title}</Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }
 
 function Header({ site, menus, pages, posts }) {
-  const ctaPage =
-    pages.find((page) => ["contact", "about", "sample-page"].includes(page.slug)) || pages[0] || null;
+  const commercePage = pages.find((page) => ["cart", "checkout"].includes(page.slug)) || null;
+  const siteOrigin = getSiteOrigin(site?.home_url || site?.url || "");
+  const featuredPage = buildFeaturedPages(pages)[0] || null;
 
   return (
     <header className="site-header-shell">
-      <div className="brand-block">
-        <p className="eyebrow">Headless-ready WordPress</p>
-        <AppLink className="site-title" href="/">
-          PressBridge
-        </AppLink>
-        <p className="site-description">Connect WordPress to modern frontends.</p>
+      <div className="brand-identity">
+        <div className="brand-mark" aria-hidden="true">
+          <span className="brand-mark-text">PB</span>
+        </div>
+        <div className="brand-block">
+          <p className="eyebrow">Lite smoke frontend</p>
+          <Link className="site-title" to="/">PressBridge</Link>
+          <p className="site-description">{SITE_TAGLINE}</p>
+        </div>
       </div>
-
       <div className="header-nav-block">
-        <Navigation menus={menus} siteHomeUrl={site?.home_url} pages={pages} posts={posts} />
-        {ctaPage ? (
-          <AppLink className="button-link button-link-primary header-cta" href={ctaPage.path}>
-            {ctaPage.slug === "contact" ? "Contact" : `Explore ${ctaPage.title}`}
-          </AppLink>
-        ) : null}
+        <Navigation menus={menus} pages={pages} posts={posts} />
+        <div className="header-actions">
+          {commercePage ? (
+            <a className="icon-link icon-link-cart" href={`${siteOrigin}${commercePage.path}`} title={commercePage.title} aria-label={`Open ${commercePage.title}`}>
+              <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+                <path d="M7 6h14l-1.6 7.2a2 2 0 0 1-2 1.6H10.2a2 2 0 0 1-2-1.5L6.2 4.8H3" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="10.4" cy="19" r="1.5" fill="currentColor" />
+                <circle cx="17.2" cy="19" r="1.5" fill="currentColor" />
+              </svg>
+            </a>
+          ) : null}
+          {featuredPage ? <Link className="button-link button-link-primary header-cta" to={featuredPage.path}>Open sample page</Link> : null}
+        </div>
       </div>
     </header>
   );
@@ -265,25 +441,24 @@ function Footer({ site, menus, pages, posts }) {
   return (
     <footer className="site-footer-shell">
       <div className="footer-column">
-        <p className="eyebrow">Powered by WordPress</p>
-        <h2>PressBridge</h2>
-        <p>
-          Publish in WordPress, render with React, and keep routing, preview, and safe handoff in
-          one bridge layer.
-        </p>
+        <p className="eyebrow">PressBridge</p>
+        <h2>Quick smoke checks without the Vite build.</h2>
+        <p>This frontend is intentionally lightweight. It exists to verify route resolution, preview flow, and starter rendering against a live WordPress site.</p>
       </div>
-
       <div className="footer-column">
         <p className="eyebrow">Navigation</p>
-        <FooterNavigation menus={menus} siteHomeUrl={site?.home_url} pages={pages} posts={posts} />
+        <ul className="footer-links">
+          {buildFallbackLinks(pages, posts).filter((item) => item.href !== "/").map((item) => (
+            <li key={item.id}><Link className="footer-link" to={item.href}>{item.title}</Link></li>
+          ))}
+        </ul>
       </div>
-
       <div className="footer-column">
-        <p className="eyebrow">Stack</p>
+        <p className="eyebrow">Current starter state</p>
         <ul className="stack-list">
-          <li>WordPress for content and editorial workflows</li>
-          <li>PressBridge for route handoff, previews, and normalized API responses</li>
-          <li>React for the public rendering layer</li>
+          <li>{describeRouteMode(site)}</li>
+          <li>{pages.length} WordPress page{pages.length === 1 ? "" : "s"} available to explore</li>
+          <li>{posts.filter((item) => !isStarterPlaceholderContent(item)).length} recent post route{posts.length === 1 ? "" : "s"} ready for rendering</li>
         </ul>
       </div>
     </footer>
@@ -291,1209 +466,172 @@ function Footer({ site, menus, pages, posts }) {
 }
 
 function HeroSection({ site, pages, posts }) {
-  const primaryPage =
-    pages.find((page) => ["sample-page", "about", "contact"].includes(page.slug)) || pages[0] || null;
-  const primaryPost = posts[0] || null;
+  const featuredPages = buildFeaturedPages(pages);
+  const primaryPage = featuredPages[0] || null;
+  const secondaryPage = featuredPages[1] || null;
+  const realPosts = posts.filter((item) => !isStarterPlaceholderContent(item));
 
   return (
     <section className="hero-panel">
       <div className="hero-copy">
-        <p className="eyebrow">Release-ready alpha</p>
-        <h1>Same WordPress content. Better frontend.</h1>
-        <p className="hero-lede">
-          PressBridge lets you keep WordPress as the CMS while moving the public experience to
-          React without breaking wp-admin, previews, or editorial workflows.
-        </p>
+        <p className="eyebrow">{STARTER_HOME.eyebrow}</p>
+        <h1>{STARTER_HOME.title}</h1>
+        <p className="hero-lede">{STARTER_HOME.intro}</p>
         <div className="action-row">
-          {primaryPage ? (
-            <AppLink className="button-link button-link-primary" href={primaryPage.path}>
-              Open sample page
-            </AppLink>
-          ) : null}
-          {primaryPost ? (
-            <AppLink className="button-link" href={primaryPost.path}>
-              Read latest post
-            </AppLink>
-          ) : null}
+          {primaryPage ? <Link className="button-link button-link-primary" to={primaryPage.path}>Open {primaryPage.title}</Link> : null}
+          {secondaryPage ? <Link className="button-link" to={secondaryPage.path}>Explore {secondaryPage.title}</Link> : null}
         </div>
-        <p className="inline-note">
-          This page is using live WordPress content and routes, but it is being rendered by React
-          through PressBridge.
-        </p>
+        <div className="hero-meta-row">
+          <span>WordPress remains the CMS</span>
+          <span>Route truth comes from the plugin</span>
+          <span>React shapes the public experience</span>
+        </div>
+        <p className="inline-note">{STARTER_HOME.note} {realPosts.length ? "Recent posts are available below for route and archive testing." : ""}</p>
       </div>
 
-      <div className="hero-proof">
-        <div className="proof-card">
-          <span className="proof-label">Content source</span>
-          <strong>{site?.name || "WordPress site"}</strong>
-        </div>
-        <div className="proof-card">
-          <span className="proof-label">Frontend target</span>
-          <strong>{site?.frontend_url || "Not configured"}</strong>
-        </div>
-        <div className="proof-card">
-          <span className="proof-label">Delivery mode</span>
-          <strong>{describeRouteMode(site)}</strong>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function SystemOverview({ site }) {
-  const items = [
-    {
-      label: "Content managed in",
-      value: "WordPress admin",
-      copy: "Pages, posts, menus, and previews remain in WordPress."
-    },
-    {
-      label: "Frontend rendered by",
-      value: "React",
-      copy: "Public routes are rendered in a modern component-based frontend."
-    },
-    {
-      label: "Delivery mode",
-      value: describeRouteMode(site),
-      copy:
-        site?.route_handling_mode === "redirect"
-          ? "Logged-out public requests can be handed off to React."
-          : "WordPress is still serving public pages while the frontend is integrated."
-    },
-    {
-      label: "Preview workflow",
-      value: site?.frontend_url ? "Signed preview links" : "Needs frontend URL",
-      copy: "Editors can review frontend previews without leaving WordPress."
-    }
-  ];
-
-  return (
-    <section className="content-card">
-      <p className="eyebrow">System overview</p>
-      <h2>How this PressBridge build is wired</h2>
-      <div className="overview-grid">
-        {items.map((item) => (
-          <article key={item.label} className="overview-card">
-            <p className="overview-label">{item.label}</p>
-            <h3>{item.value}</h3>
-            <p>{item.copy}</p>
+      <div className="hero-stage">
+        <div className="hero-stage-composition">
+          <article className="hero-composition-primary">
+            <div className="hero-composition-surface hero-composition-surface--window">
+              <div className="hero-window-bar"><span /><span /><span /></div>
+              <div className="hero-window-grid">
+                <div className="hero-window-panel hero-window-panel--large" />
+                <div className="hero-window-panel hero-window-panel--tall" />
+                <div className="hero-window-panel hero-window-panel--wide" />
+                <div className="hero-window-panel hero-window-panel--metric" />
+              </div>
+            </div>
+            <div className="hero-showcase-copy">
+              <span className="proof-label">Bridge behavior</span>
+              <strong>Use WordPress as the source of truth without forcing the frontend to behave like a theme.</strong>
+              <p className="proof-copy">This no-build frontend keeps the same high-level contract as the Vite starter while staying lightweight.</p>
+            </div>
           </article>
-        ))}
+          <div className="hero-composition-stack">
+            <article className="hero-composition-card">
+              <div className="hero-composition-surface hero-composition-surface--code">
+                <span className="hero-code-line hero-code-line--short" />
+                <span className="hero-code-line hero-code-line--long" />
+                <span className="hero-code-line hero-code-line--medium" />
+              </div>
+              <div className="hero-showcase-copy">
+                <span className="proof-label">Smoke frontend</span>
+                <strong>Fast to run locally when you want to test the bridge without a build step.</strong>
+              </div>
+            </article>
+            <article className="hero-composition-card">
+              <div className="hero-composition-surface hero-composition-surface--signals">
+                <span className="hero-signal hero-signal--one" />
+                <span className="hero-signal hero-signal--two" />
+                <span className="hero-signal hero-signal--three" />
+              </div>
+              <div className="hero-showcase-copy">
+                <span className="proof-label">Local workflow</span>
+                <strong>Useful for validating route resolution, preview behavior, and content rendering against Local WordPress.</strong>
+              </div>
+            </article>
+          </div>
+        </div>
+        <div className="hero-stage-grid">
+          <div className="proof-card">
+            <span className="proof-label">Content source</span>
+            <strong>{site?.name || "WordPress"}</strong>
+            <p className="proof-copy">The current site config comes from the WordPress backend, not a hardcoded demo.</p>
+          </div>
+          <div className="proof-card">
+            <span className="proof-label">Mode</span>
+            <strong>{describeRouteMode(site)}</strong>
+            <p className="proof-copy">The smoke frontend uses the same bridge settings the plugin is exposing right now.</p>
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
-function BenefitGrid() {
-  const items = [
-    {
-      title: "Keep WordPress workflows",
-      copy: "Editors keep using the familiar WordPress admin for content, menus, publishing, and previews."
-    },
-    {
-      title: "Modern frontend freedom",
-      copy: "Build the public experience in React instead of forcing modern UX work back into PHP templates."
-    },
-    {
-      title: "Safe gradual adoption",
-      copy: "Start with WordPress rendering, then turn on redirect handoff only when the frontend is ready."
-    }
-  ];
-
+function RouteExamples({ pages }) {
+  const featuredPages = buildFeaturedPages(pages);
+  if (!featuredPages.length) return null;
   return (
-    <section className="content-card">
-      <p className="eyebrow">Why PressBridge</p>
-      <h2>Use WordPress as the backend without losing frontend control</h2>
-      <div className="advantage-grid">
-        {items.map((item) => (
-          <article key={item.title} className="advantage-card">
-            <h3>{item.title}</h3>
-            <p>{item.copy}</p>
-          </article>
-        ))}
+    <section className="content-card content-card--open">
+      <p className="eyebrow">Explore routes</p>
+      <div className="section-heading">
+        <h2>Real WordPress paths, resolved through the plugin.</h2>
+        <p className="lede">These routes are still authored and managed in WordPress. The frontend simply presents them through the starter shell.</p>
       </div>
-    </section>
-  );
-}
-
-function LiveProof({ site, route }) {
-  return (
-    <section className="content-card">
-      <p className="eyebrow">Live proof</p>
-      <h2>The content is still WordPress. The presentation is React.</h2>
-      <div className="live-proof-layout">
-        <p className="lede">
-          The route, content source, and editorial flow still come from WordPress. PressBridge
-          resolves the route and hands the same content to React so the frontend can present it
-          differently.
-        </p>
-        <ul className="proof-list">
-          <li>
-            <strong>Route source:</strong> {route?.path || "/"} resolved by WordPress
-          </li>
-          <li>
-            <strong>Editorial flow:</strong> publishing and previews still start in WordPress
-          </li>
-          <li>
-            <strong>Content source:</strong> {site?.home_url || "WordPress"} still supplies the live data
-          </li>
-        </ul>
-      </div>
-    </section>
-  );
-}
-
-function RouteExamples({ pages, posts, route }) {
-  const samplePage =
-    pages.find((page) => ["sample-page", "about", "contact"].includes(page.slug)) || pages[0] || null;
-  const latestPost = posts[0] || null;
-  const archiveItemCount = route?.totalItems || route?.items?.length || 0;
-
-  return (
-    <section className="content-card">
-      <p className="eyebrow">Route examples</p>
-      <h2>These are real WordPress routes, rendered through the React frontend</h2>
       <div className="archive-grid">
-        {samplePage ? (
-          <article key={samplePage.id} className="archive-card">
-            <p className="eyebrow">Page</p>
-            <h3>
-              <AppLink href={samplePage.path}>{samplePage.title}</AppLink>
-            </h3>
-            <p>
-              {samplePage.excerpt ||
-                "This published WordPress page is being resolved and rendered through the frontend."}
-            </p>
-            <div className="action-row">
-              <AppLink className="button-link" href={samplePage.path}>
-                Open page
-              </AppLink>
-            </div>
+        {featuredPages.map((page) => (
+          <article key={page.id} className="archive-card">
+            <p className="eyebrow">WordPress route</p>
+            <h3><Link to={page.path}>{page.title}</Link></h3>
+            <p>{page.excerpt || "This route is still managed in WordPress and rendered through the React starter."}</p>
+            <div className="action-row"><Link className="button-link" to={page.path}>Open route</Link></div>
           </article>
-        ) : null}
-        {latestPost ? (
-          <article key={latestPost.id} className="archive-card">
-            <p className="eyebrow">Latest post</p>
-            <h3>
-              <AppLink href={latestPost.path}>{latestPost.title}</AppLink>
-            </h3>
-            <p>{latestPost.excerpt || "The latest published post is already available through the React frontend."}</p>
-            <div className="action-row">
-              <AppLink className="button-link" href={latestPost.path}>
-                Read post
-              </AppLink>
-            </div>
-          </article>
-        ) : null}
-        <article className="archive-card">
-          <p className="eyebrow">Archive route</p>
-          <h3>{route?.title || "Blog archive"}</h3>
-          <p>
-            The homepage route is being resolved as a WordPress archive with {archiveItemCount} published
-            {archiveItemCount === 1 ? " item" : " items"} available.
-          </p>
-          <p className="meta-row">Path: {route?.path || "/"}</p>
-        </article>
+        ))}
       </div>
     </section>
   );
 }
 
-function LatestContentSection({ route }) {
-  const items = route?.items || [];
-
-  if (!items.length) {
-    return null;
-  }
-
+function LatestContentSection({ route, posts }) {
+  const sourceItems = route?.items?.length ? route.items : posts;
+  const items = sourceItems.filter((item) => !isStarterPlaceholderContent(item));
+  if (!items.length) return null;
   return (
-    <section className="content-card">
+    <section className="content-card content-card--open">
       <p className="eyebrow">Latest content</p>
-      <h2>Published in WordPress, delivered through PressBridge</h2>
       <div className="archive-grid">
         {items.slice(0, 3).map((item) => (
           <article key={item.id} className="archive-card">
             <p className="eyebrow">{item.post_type_label || item.post_type}</p>
-            <h3>
-              <AppLink href={item.path}>{item.title}</AppLink>
-            </h3>
-            {item.excerpt ? <p>{item.excerpt}</p> : null}
+            <h3><Link to={item.path}>{item.title}</Link></h3>
+            <p>{item.excerpt || "Published in WordPress and delivered through the PressBridge frontend layer."}</p>
           </article>
         ))}
       </div>
     </section>
   );
-}
-
-function SystemHealth({ site }) {
-  const items = [
-    {
-      title: "Frontend responding",
-      status: "Ready",
-      copy: "This page is currently being served from the React frontend."
-    },
-    {
-      title: "Bridge API responding",
-      status: "Ready",
-      copy: site?.api_base || "PressBridge API available"
-    },
-    {
-      title: "Preview flow",
-      status: site?.frontend_url ? "Ready" : "Needs setup",
-      copy: site?.frontend_url
-        ? "Signed frontend previews can be generated from WordPress."
-        : "Add a frontend URL in WordPress before using frontend previews."
-    },
-    {
-      title: "Current handoff mode",
-      status: describeRouteMode(site),
-      copy:
-        site?.route_handling_mode === "redirect"
-          ? "Public visitors can be handed off to React."
-          : "WordPress is still serving public pages while integration continues."
-    }
-  ];
-
-  return (
-    <section className="content-card">
-      <p className="eyebrow">System health</p>
-      <h2>Current delivery status</h2>
-      <div className="status-grid">
-        {items.map((item) => (
-          <article key={item.title} className="status-card">
-            <span className="status-badge">{item.status}</span>
-            <h3>{item.title}</h3>
-            <p>{item.copy}</p>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function blockClasses(block, ...extraClasses) {
-  const classes = ["pressbridge-block"];
-
-  if (block?.name) {
-    classes.push(`pressbridge-block-${String(block.name).replace(/[\\/]/g, "-")}`);
-  }
-
-  if (block?.attrs?.align) {
-    classes.push(`align${block.attrs.align}`);
-  }
-
-  if (block?.attrs?.className) {
-    classes.push(block.attrs.className);
-  }
-
-  extraClasses.filter(Boolean).forEach((item) => classes.push(item));
-
-  return classes.join(" ");
-}
-
-function getBlockHtml(block) {
-  return block?.rendered_html || block?.inner_html || "";
-}
-
-function getBlockText(block) {
-  const html = getBlockHtml(block);
-
-  if (!html) {
-    return "";
-  }
-
-  const element = window.document.createElement("div");
-  element.innerHTML = html;
-  return (element.textContent || element.innerText || "").trim();
-}
-
-function parseBlockHtml(block) {
-  const html = getBlockHtml(block);
-
-  if (!html) {
-    return null;
-  }
-
-  const element = window.document.createElement("div");
-  element.innerHTML = html;
-  return element;
-}
-
-function getElementStyleMap(element) {
-  const styleText = element?.getAttribute?.("style");
-
-  if (!styleText) {
-    return {};
-  }
-
-  return styleText
-    .split(";")
-    .map((entry) => entry.trim())
-    .filter(Boolean)
-    .reduce((styles, entry) => {
-      const [property, ...valueParts] = entry.split(":");
-
-      if (!property || !valueParts.length) {
-        return styles;
-      }
-
-      styles[property.trim().toLowerCase()] = valueParts.join(":").trim();
-      return styles;
-    }, {});
-}
-
-function normalizeCssValue(value) {
-  if (value === null || value === undefined || value === "") {
-    return undefined;
-  }
-
-  if (typeof value === "number") {
-    return `${value}px`;
-  }
-
-  if (typeof value === "string") {
-    const presetMatch = value.match(/^var:preset\|([^|]+)\|(.+)$/);
-
-    if (presetMatch) {
-      const [, category, token] = presetMatch;
-      const slug = token.replace(/[|/]/g, "--");
-
-      return `var(--wp--preset--${category}--${slug})`;
-    }
-  }
-
-  return value;
-}
-
-function applyBoxStyle(style, property, value) {
-  if (!value) {
-    return;
-  }
-
-  if (typeof value === "string" || typeof value === "number") {
-    const normalized = normalizeCssValue(value);
-
-    if (normalized !== undefined) {
-      style[property] = normalized;
-    }
-
-    return;
-  }
-
-  if (typeof value !== "object") {
-    return;
-  }
-
-  const map = {
-    top: `${property}Top`,
-    right: `${property}Right`,
-    bottom: `${property}Bottom`,
-    left: `${property}Left`
-  };
-
-  Object.entries(map).forEach(([key, cssProperty]) => {
-    const normalized = normalizeCssValue(value[key]);
-
-    if (normalized !== undefined) {
-      style[cssProperty] = normalized;
-    }
-  });
-}
-
-function getSpacingStyle(spacing = {}) {
-  if (!spacing || typeof spacing !== "object") {
-    return undefined;
-  }
-
-  const style = {};
-
-  applyBoxStyle(style, "padding", spacing.padding);
-  applyBoxStyle(style, "margin", spacing.margin);
-
-  if (spacing.blockGap !== undefined) {
-    if (typeof spacing.blockGap === "string" || typeof spacing.blockGap === "number") {
-      const normalized = normalizeCssValue(spacing.blockGap);
-
-      if (normalized !== undefined) {
-        style.gap = normalized;
-      }
-    } else if (typeof spacing.blockGap === "object") {
-      const rowGap = normalizeCssValue(spacing.blockGap.top);
-      const columnGap = normalizeCssValue(spacing.blockGap.left);
-
-      if (rowGap !== undefined) {
-        style.rowGap = rowGap;
-      }
-
-      if (columnGap !== undefined) {
-        style.columnGap = columnGap;
-      }
-
-      if (style.rowGap !== undefined && style.columnGap !== undefined) {
-        style.gap = `${style.rowGap} ${style.columnGap}`;
-      }
-    }
-  }
-
-  return Object.keys(style).length ? style : undefined;
-}
-
-function getDimensionStyle(dimensions = {}) {
-  if (!dimensions || typeof dimensions !== "object") {
-    return undefined;
-  }
-
-  const style = {};
-  const minHeight = normalizeCssValue(dimensions.minHeight);
-
-  if (minHeight !== undefined) {
-    style.minHeight = minHeight;
-  }
-
-  return Object.keys(style).length ? style : undefined;
-}
-
-function getColorStyle(color = {}) {
-  if (!color || typeof color !== "object") {
-    return undefined;
-  }
-
-  const style = {};
-
-  if (color.background) {
-    style.backgroundColor = color.background;
-  }
-
-  if (color.text) {
-    style.color = color.text;
-  }
-
-  return Object.keys(style).length ? style : undefined;
-}
-
-function getTypographyStyle(block) {
-  const typography = block?.attrs?.style?.typography || {};
-  const style = {};
-  const fontSize = normalizeCssValue(typography.fontSize || block?.attrs?.fontSize);
-  const lineHeight = normalizeCssValue(typography.lineHeight);
-
-  if (fontSize !== undefined) {
-    style.fontSize = fontSize;
-  }
-
-  if (lineHeight !== undefined) {
-    style.lineHeight = lineHeight;
-  }
-
-  if (typography.fontStyle) {
-    style.fontStyle = typography.fontStyle;
-  }
-
-  if (typography.fontWeight) {
-    style.fontWeight = typography.fontWeight;
-  }
-
-  return Object.keys(style).length ? style : undefined;
-}
-
-function mergeStyles(...styles) {
-  const merged = Object.assign({}, ...styles.filter(Boolean));
-
-  return Object.keys(merged).length ? merged : undefined;
-}
-
-function getBlockStyle(block) {
-  return mergeStyles(
-    getSpacingStyle(block?.attrs?.style?.spacing),
-    getDimensionStyle(block?.attrs?.style?.dimensions),
-    getColorStyle(block?.attrs?.style?.color),
-    getTypographyStyle(block)
-  );
-}
-
-function getGalleryStyle(block) {
-  const style = mergeStyles(getSpacingStyle(block?.attrs?.style?.spacing)) || {};
-  const columns = Number(block?.attrs?.columns || 0);
-
-  if (columns > 0) {
-    style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
-  }
-
-  return Object.keys(style).length ? style : undefined;
-}
-
-function getSeparatorStyle(block) {
-  const style = mergeStyles(getSpacingStyle(block?.attrs?.style?.spacing)) || {};
-  const borderColor =
-    block?.attrs?.style?.color?.background ||
-    block?.attrs?.style?.color?.text ||
-    block?.attrs?.backgroundColor;
-  const opacity = block?.attrs?.opacity;
-
-  if (borderColor) {
-    style.borderColor = borderColor;
-  }
-
-  if (opacity !== undefined) {
-    style.opacity = Number(opacity) / 100;
-  }
-
-  return Object.keys(style).length ? style : undefined;
-}
-
-function normalizeFlexPosition(value) {
-  switch (value) {
-    case "left":
-    case "top":
-      return "flex-start";
-    case "right":
-    case "bottom":
-      return "flex-end";
-    case "center":
-      return "center";
-    case "space-between":
-      return "space-between";
-    case "space-around":
-      return "space-around";
-    case "space-evenly":
-      return "space-evenly";
-    default:
-      return undefined;
-  }
-}
-
-function normalizeAlignItems(value) {
-  if (value === "stretch") {
-    return "stretch";
-  }
-
-  return normalizeFlexPosition(value);
-}
-
-function getFlexLayoutStyle(layout = {}, block = null) {
-  const style = mergeStyles(getSpacingStyle(block?.attrs?.style?.spacing)) || {};
-  const isVertical = layout.orientation === "vertical";
-
-  style.display = "flex";
-  style.flexDirection = isVertical ? "column" : "row";
-  style.flexWrap = isVertical ? "nowrap" : "wrap";
-
-  const justifyContent = normalizeFlexPosition(layout.justifyContent);
-  const alignItems = normalizeAlignItems(layout.verticalAlignment || block?.attrs?.verticalAlignment);
-
-  if (justifyContent) {
-    style.justifyContent = justifyContent;
-  }
-
-  if (alignItems) {
-    style.alignItems = alignItems;
-  }
-
-  return style;
-}
-
-function getColumnStyle(block) {
-  const width = normalizeCssValue(block?.attrs?.width);
-  const style = mergeStyles(getSpacingStyle(block?.attrs?.style?.spacing)) || {};
-
-  if (width) {
-    style.flexBasis = width;
-    style.width = width;
-  }
-
-  const verticalAlignment = normalizeAlignItems(block?.attrs?.verticalAlignment);
-
-  if (verticalAlignment) {
-    style.alignSelf = verticalAlignment;
-  }
-
-  if (style.gap || style.rowGap || style.columnGap) {
-    style.display = "grid";
-  }
-
-  return Object.keys(style).length ? style : undefined;
-}
-
-function getColumnsStyle(block) {
-  const widths = (block?.inner_blocks || []).map((item) => normalizeCssValue(item?.attrs?.width));
-  const spacingStyle = getSpacingStyle(block?.attrs?.style?.spacing);
-  const style = mergeStyles(spacingStyle) || {};
-
-  if (widths.some(Boolean)) {
-    return {
-      ...style,
-      gridTemplateColumns: widths.map((item) => item || "minmax(0, 1fr)").join(" ")
-    };
-  }
-
-  return {
-    ...style,
-    "--pressbridge-grid-columns": String(Math.max(1, block?.inner_blocks?.length || 1))
-  };
-}
-
-function getGroupInnerLayout(block) {
-  const layout = block?.attrs?.layout || {};
-  const classes = ["pressbridge-group__inner"];
-  const style = mergeStyles(getSpacingStyle(block?.attrs?.style?.spacing)) || {};
-
-  if (layout.type === "grid") {
-    classes.push("pressbridge-layout-grid");
-
-    if (layout.minimumColumnWidth) {
-      style.gridTemplateColumns = `repeat(auto-fit, minmax(${normalizeCssValue(layout.minimumColumnWidth)}, 1fr))`;
-    }
-  } else if (layout.type === "flex" && layout.orientation !== "vertical") {
-    classes.push("pressbridge-layout-row");
-    Object.assign(style, getFlexLayoutStyle(layout, block));
-  } else if (layout.type === "flex" && layout.orientation === "vertical") {
-    classes.push("pressbridge-layout-stack", "pressbridge-layout-stack-flex");
-    Object.assign(style, getFlexLayoutStyle(layout, block));
-  } else {
-    classes.push("pressbridge-layout-stack");
-  }
-
-  return {
-    className: classes.join(" "),
-    style
-  };
-}
-
-function getGroupStyle(block) {
-  return getBlockStyle(block);
-}
-
-function isTextLikeBlock(block) {
-  const name = block?.name || "";
-
-  if (["core/heading", "core/paragraph", "core/list", "core/quote", "core/buttons", "core/button", "core/spacer"].includes(name)) {
-    return true;
-  }
-
-  if ("core/group" === name) {
-    return (block?.inner_blocks || []).every(isTextLikeBlock);
-  }
-
-  return false;
-}
-
-function hasCardLikePresentation(block) {
-  const className = block?.attrs?.className || "";
-  const style = block?.attrs?.style || {};
-
-  return Boolean(
-    className.includes("is-style-") ||
-      style?.dimensions?.minHeight ||
-      style?.color?.background ||
-      style?.spacing?.padding
-  );
-}
-
-function isMediaCardGroup(block) {
-  if ("core/group" !== block?.name) {
-    return false;
-  }
-
-  const children = block?.inner_blocks || [];
-
-  if (children.length < 2 || children.length > 3) {
-    return false;
-  }
-
-  const first = children[0];
-  const second = children[1];
-
-  return (
-    ["core/cover", "core/image"].includes(first?.name) &&
-    ["core/paragraph", "core/heading"].includes(second?.name)
-  );
-}
-
-function getGroupLayoutParts(block) {
-  const blocks = block?.inner_blocks || [];
-  const layout = block?.attrs?.layout || {};
-  const firstBlock = blocks[0];
-
-  if (
-    "grid" === layout.type &&
-    blocks.length >= 3 &&
-    firstBlock &&
-    isTextLikeBlock(firstBlock) &&
-    !hasCardLikePresentation(firstBlock) &&
-    blocks.slice(1).some((item) => !isTextLikeBlock(item))
-  ) {
-    return {
-      introBlock: firstBlock,
-      layoutBlock: {
-        ...block,
-        inner_blocks: blocks.slice(1)
-      }
-    };
-  }
-
-  return {
-    introBlock: null,
-    layoutBlock: block
-  };
-}
-
-function getCoverStyle(block) {
-  const url = block?.attrs?.url;
-  const minHeight = normalizeCssValue(block?.attrs?.minHeight);
-  const style = mergeStyles(getBlockStyle(block)) || {};
-
-  if (url) {
-    style.backgroundImage = `url("${url}")`;
-  }
-
-  if (minHeight) {
-    style.minHeight = minHeight;
-  }
-
-  return style;
-}
-
-function getCoverOverlayStyle(block) {
-  const dimRatio = Number(block?.attrs?.dimRatio ?? 50);
-  const overlayColor = block?.attrs?.overlayColor || block?.attrs?.customOverlayColor || "#17324d";
-
-  return {
-    backgroundColor: overlayColor,
-    opacity: Math.max(0, Math.min(dimRatio, 100)) / 100
-  };
-}
-
-function getImageData(block) {
-  const attrs = block?.attrs || {};
-  const parsed = parseBlockHtml(block);
-  const image = parsed?.querySelector("img");
-  const caption = parsed?.querySelector("figcaption");
-  const inlineStyle = getElementStyleMap(image);
-
-  return {
-    alt: attrs.alt || image?.getAttribute("alt") || "",
-    caption: attrs.caption || caption?.innerHTML || "",
-    height: attrs.height || image?.getAttribute("height") || inlineStyle.height || undefined,
-    inlineStyle,
-    url: attrs.url || image?.getAttribute("src") || "",
-    width: attrs.width || image?.getAttribute("width") || inlineStyle.width || undefined
-  };
-}
-
-function getImageStyle(block) {
-  const image = getImageData(block);
-  const attrs = block?.attrs || {};
-  const style = {};
-  const aspectRatio = normalizeCssValue(attrs.aspectRatio || image.inlineStyle?.["aspect-ratio"]);
-  const objectFit = attrs.scale || image.inlineStyle?.["object-fit"];
-  const width = normalizeCssValue(image.width);
-  const height = normalizeCssValue(image.height);
-
-  if (aspectRatio) {
-    style.aspectRatio = aspectRatio;
-  }
-
-  if (objectFit) {
-    style.objectFit = objectFit;
-  }
-
-  if (width) {
-    style.width = width;
-  }
-
-  if (height) {
-    style.height = height;
-  }
-
-  return Object.keys(style).length ? style : undefined;
-}
-
-function getImageWrapperStyle(block) {
-  return getBlockStyle(block);
-}
-
-function getMediaTextData(block) {
-  const attrs = block?.attrs || {};
-  const parsed = parseBlockHtml(block);
-  const mediaImage = parsed?.querySelector(".wp-block-media-text__media img");
-  const mediaVideo = parsed?.querySelector(".wp-block-media-text__media video");
-  const mediaLink = parsed?.querySelector(".wp-block-media-text__media a");
-
-  return {
-    alt: mediaImage?.getAttribute("alt") || "",
-    mediaPosition:
-      attrs.mediaPosition ||
-      (parsed?.querySelector(".has-media-on-the-right") || parsed?.firstElementChild?.classList?.contains("has-media-on-the-right")
-        ? "right"
-        : "left"),
-    mediaWidth: Number(attrs.mediaWidth || 50),
-    mediaUrl:
-      mediaImage?.getAttribute("src") ||
-      mediaVideo?.getAttribute("src") ||
-      mediaLink?.getAttribute("href") ||
-      "",
-    mediaType: mediaVideo ? "video" : "image",
-    stackedOnMobile: Boolean(attrs.isStackedOnMobile)
-  };
-}
-
-function getButtonData(block) {
-  const attrs = block?.attrs || {};
-  const parsed = parseBlockHtml(block);
-  const anchor = parsed?.querySelector("a");
-
-  return {
-    target: attrs.linkTarget || anchor?.getAttribute("target") || "",
-    text: anchor ? (anchor.textContent || "").trim() : getBlockText(block),
-    url: attrs.url || anchor?.getAttribute("href") || ""
-  };
-}
-
-function BlockHtmlFallback({ block, className = "" }) {
-  const html = getBlockHtml(block);
-
-  if (!html) {
-    return null;
-  }
-
-  return (
-    <div
-      className={blockClasses(block, "pressbridge-html-block", className)}
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  );
-}
-
-function BlockRenderer({ block }) {
-  if (!block?.name) {
-    return null;
-  }
-
-  switch (block.name) {
-    case "core/paragraph":
-      return (
-        <div
-          className={blockClasses(block, "pressbridge-rich-block")}
-          dangerouslySetInnerHTML={{ __html: getBlockHtml(block) }}
-        />
-      );
-
-    case "core/heading": {
-      return <BlockHtmlFallback block={block} className="pressbridge-heading-block" />;
-    }
-
-    case "core/image": {
-      const image = getImageData(block);
-
-      if (!image.url) {
-        return <BlockHtmlFallback block={block} />;
-      }
-
-      return (
-        <figure className={blockClasses(block, "pressbridge-image-block")} style={getImageWrapperStyle(block)}>
-          <img src={image.url} alt={image.alt} style={getImageStyle(block)} />
-          {image.caption ? <figcaption dangerouslySetInnerHTML={{ __html: image.caption }} /> : null}
-        </figure>
-      );
-    }
-
-    case "core/gallery":
-      if (!block?.inner_blocks?.length) {
-        return <BlockHtmlFallback block={block} />;
-      }
-
-      return (
-        <div
-          className={blockClasses(block, "pressbridge-gallery")}
-          style={{
-            "--pressbridge-grid-columns": String(
-              Math.max(1, Number(block?.attrs?.columns || block.inner_blocks.length || 1))
-            ),
-            ...(getGalleryStyle(block) || {})
-          }}
-        >
-          <BlockList blocks={block.inner_blocks} />
-        </div>
-      );
-
-    case "core/media-text": {
-      const media = getMediaTextData(block);
-
-      if (!media.mediaUrl) {
-        return <BlockHtmlFallback block={block} />;
-      }
-
-      const classNames = [
-        blockClasses(block, "pressbridge-media-text"),
-        media.mediaPosition === "right" ? "pressbridge-media-text--right" : "",
-        media.stackedOnMobile ? "pressbridge-media-text--stack-mobile" : ""
-      ]
-        .filter(Boolean)
-        .join(" ");
-
-      return (
-        <section
-          className={classNames}
-          style={{
-            ...(getBlockStyle(block) || {}),
-            "--pressbridge-media-width": `${Math.max(20, Math.min(media.mediaWidth || 50, 80))}%`
-          }}
-        >
-          <div className="pressbridge-media-text__media">
-            {media.mediaType === "video" ? (
-              <video controls src={media.mediaUrl} />
-            ) : (
-              <img src={media.mediaUrl} alt={media.alt} />
-            )}
-          </div>
-          <div className="pressbridge-media-text__content">
-            {block?.inner_blocks?.length ? <BlockList blocks={block.inner_blocks} /> : <BlockHtmlFallback block={block} />}
-          </div>
-        </section>
-      );
-    }
-
-    case "core/group": {
-      if (!block?.inner_blocks?.length) {
-        return <BlockHtmlFallback block={block} />;
-      }
-
-      const { introBlock, layoutBlock } = getGroupLayoutParts(block);
-      const innerLayout = getGroupInnerLayout(layoutBlock);
-      const isMediaCard = isMediaCardGroup(block);
-
-      return (
-        <section
-          className={blockClasses(
-            block,
-            "pressbridge-group",
-            introBlock ? "pressbridge-group--section" : "",
-            isMediaCard ? "pressbridge-group--media-card" : ""
-          )}
-          style={getGroupStyle(block)}
-        >
-          {introBlock ? <div className="pressbridge-group__intro"><BlockList blocks={[introBlock]} /></div> : null}
-          <div className={innerLayout.className} style={innerLayout.style}>
-            <BlockList blocks={layoutBlock.inner_blocks} />
-          </div>
-        </section>
-      );
-    }
-
-    case "core/columns":
-      if (!block?.inner_blocks?.length) {
-        return <BlockHtmlFallback block={block} />;
-      }
-
-      return (
-        <div
-          className={blockClasses(block, "pressbridge-columns")}
-          style={getColumnsStyle(block)}
-        >
-          <BlockList blocks={block.inner_blocks} />
-        </div>
-      );
-
-    case "core/column":
-      if (!block?.inner_blocks?.length) {
-        return <BlockHtmlFallback block={block} />;
-      }
-
-      return (
-        <div className={blockClasses(block, "pressbridge-column")} style={getColumnStyle(block)}>
-          <BlockList blocks={block.inner_blocks} />
-        </div>
-      );
-
-    case "core/buttons":
-      if (!block?.inner_blocks?.length) {
-        return <BlockHtmlFallback block={block} />;
-      }
-
-      return (
-        <div className={blockClasses(block, "pressbridge-buttons")}>
-          <BlockList blocks={block.inner_blocks} />
-        </div>
-      );
-
-    case "core/button": {
-      const { target, text, url } = getButtonData(block);
-
-      if (!url || !text) {
-        return <BlockHtmlFallback block={block} />;
-      }
-
-      return (
-        <AppLink className={blockClasses(block, "pressbridge-button__link")} href={url} target={target}>
-          {text}
-        </AppLink>
-      );
-    }
-
-    case "core/list":
-    case "core/quote":
-      return <BlockHtmlFallback block={block} />;
-
-    case "core/cover": {
-      const style = getCoverStyle(block);
-
-      if (!block?.inner_blocks?.length && !style.backgroundImage) {
-        return <BlockHtmlFallback block={block} />;
-      }
-
-      return (
-        <section className={blockClasses(block, "pressbridge-cover")} style={style}>
-          <span className="pressbridge-cover__overlay" style={getCoverOverlayStyle(block)} aria-hidden="true" />
-          <div className="pressbridge-cover__content">
-            {block?.inner_blocks?.length ? <BlockList blocks={block.inner_blocks} /> : null}
-          </div>
-        </section>
-      );
-    }
-
-    case "core/spacer":
-      return (
-        <div
-          className={blockClasses(block, "pressbridge-spacer")}
-          style={{ height: normalizeCssValue(block?.attrs?.height) || "1.5rem" }}
-          aria-hidden="true"
-        />
-      );
-
-    case "core/separator":
-      return <hr className={blockClasses(block, "pressbridge-separator")} style={getSeparatorStyle(block)} />;
-
-    default:
-      return <BlockHtmlFallback block={block} className="pressbridge-fallback-block" />;
-  }
-}
-
-function BlockList({ blocks = [] }) {
-  if (!blocks.length) {
-    return null;
-  }
-
-  return (
-    <>
-      {blocks.map((block, index) => (
-        <BlockRenderer
-          key={`${block.name || "unknown"}-${block.attrs?.id || block.attrs?.url || index}`}
-          block={block}
-        />
-      ))}
-    </>
-  );
-}
-
-function BlockContent({ blocks = [], html = "" }) {
-  if (blocks.length) {
-    return (
-      <div className="content-body content-body-blocks">
-        <BlockList blocks={blocks} />
-      </div>
-    );
-  }
-
-  if (!html) {
-    return null;
-  }
-
-  return (
-    <div className="content-body content-body-html" dangerouslySetInnerHTML={{ __html: html }} />
-  );
-}
-
-function formatPreviewTime(value) {
-  if (!value) {
-    return "";
-  }
-
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      dateStyle: "medium",
-      timeStyle: "short"
-    }).format(new Date(value));
-  } catch (error) {
-    return value;
-  }
 }
 
 function PreviewBanner({ content, currentPath }) {
-  if (!content?.is_preview) {
-    return null;
-  }
-
+  if (!content?.is_preview) return null;
   const preview = content.preview || {};
   const publishedPath = preview.canonical_path || content.path || "/";
-  const previewModePath =
-    currentPath === publishedPath ? `${publishedPath}?wtr_preview_token=...` : currentPath;
-
   return (
     <section className="content-card preview-card">
       <p className="eyebrow">Preview mode</p>
       <h2>Signed WordPress preview</h2>
-      <p className="lede">
-        {preview.source_label ||
-          "You are looking at a temporary preview being served directly from WordPress."}
-      </p>
-      <p className="meta-row">
-        Preview URL: <strong>{previewModePath}</strong>
-      </p>
-      {preview.token_expires_at ? (
-        <p className="meta-row">
-          Link expires: <strong>{formatPreviewTime(preview.token_expires_at)}</strong>
-        </p>
-      ) : null}
-      <div className="action-row">
-        <AppLink className="button-link" href={publishedPath}>
-          Open published route
-        </AppLink>
-      </div>
+      <p className="lede">{preview.source_label || "You are looking at a temporary preview being served directly from WordPress."}</p>
+      <p className="meta-row">Preview URL: <strong>{currentPath === publishedPath ? `${publishedPath}?wtr_preview_token=...` : currentPath}</strong></p>
+      <div className="action-row"><Link className="button-link" to={publishedPath}>Open published route</Link></div>
     </section>
   );
 }
 
 function ContentView({ content }) {
-  const isDocumentPage = content?.post_type === "page" && Array.isArray(content?.blocks) && content.blocks.length > 0;
-  const className = ["content-card", isDocumentPage ? "content-card--document" : ""].filter(Boolean).join(" ");
-
   return (
-    <article className={className}>
+    <article className={`content-card ${content?.post_type === "page" ? "content-card--document" : ""}`.trim()}>
       <p className="eyebrow">{content.post_type_label || content.post_type}</p>
       <h1>{content.title}</h1>
-      {content.featured_image?.url ? (
-        <img
-          className="hero-image"
-          src={content.featured_image.url}
-          alt={content.featured_image.alt || content.title}
-        />
-      ) : null}
-      <BlockContent blocks={content.blocks || []} html={content.content} />
+      {content.featured_image?.url ? <img className="hero-image" src={content.featured_image.url} alt={content.featured_image.alt || content.title} /> : null}
+      <BlockContent content={content} />
     </article>
   );
 }
 
 function ArchiveView({ route }) {
   const items = route.items || [];
-
   return (
     <section className="content-card">
       <p className="eyebrow">{route.post_type_label || route.post_type} archive</p>
       <h2>{route.title}</h2>
       {route.description ? <p className="lede">{route.description}</p> : null}
-      <p className="meta-row">
-        {route.totalItems} item{route.totalItems === 1 ? "" : "s"}
-        {route.search ? ` matching "${route.search}"` : ""}
-      </p>
-
       {items.length ? (
         <div className="archive-grid">
           {items.map((item) => (
             <article key={item.id} className="archive-card">
               <p className="eyebrow">{item.post_type_label || item.post_type}</p>
-              <h3>
-                <AppLink href={item.path}>{item.title}</AppLink>
-              </h3>
+              <h3><Link to={item.path}>{item.title}</Link></h3>
               {item.excerpt ? <p>{item.excerpt}</p> : null}
             </article>
           ))}
@@ -1523,20 +661,6 @@ function FailureState({ message }) {
   );
 }
 
-function HomeExperience({ site, route, pages, posts }) {
-  return (
-    <>
-      <HeroSection site={site} pages={pages} posts={posts} />
-      <SystemOverview site={site} />
-      <BenefitGrid />
-      <LiveProof site={site} route={route} />
-      <RouteExamples pages={pages} posts={posts} route={route} />
-      <LatestContentSection route={route} />
-      <SystemHealth site={site} />
-    </>
-  );
-}
-
 function EmptyRoute() {
   return (
     <section className="content-card">
@@ -1547,76 +671,90 @@ function EmptyRoute() {
   );
 }
 
+function RouteLoadingShell() {
+  return (
+    <section className="route-loading-shell" aria-hidden="true">
+      <div className="route-loading-shell__hero">
+        <span className="route-loading-line route-loading-line--eyebrow" />
+        <span className="route-loading-line route-loading-line--title" />
+        <span className="route-loading-line route-loading-line--title route-loading-line--short" />
+        <span className="route-loading-line route-loading-line--copy" />
+      </div>
+      <div className="route-loading-shell__grid">
+        <span className="route-loading-card" />
+        <span className="route-loading-card" />
+        <span className="route-loading-card" />
+      </div>
+    </section>
+  );
+}
+
+function HomeExperience({ site, route, pages, posts }) {
+  return (
+    <>
+      <HeroSection site={site} pages={pages} posts={posts} />
+      <RouteExamples pages={pages} />
+      <LatestContentSection route={route} posts={posts} />
+    </>
+  );
+}
+
 function App() {
-  const [route, setRoute] = useState(() => window.location.pathname + window.location.search);
-  const [site, setSite] = useState(null);
-  const [menus, setMenus] = useState(null);
-  const [pages, setPages] = useState([]);
-  const [posts, setPosts] = useState([]);
-  const [routeData, setRouteData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const currentPath = `${location.pathname}${location.search}`;
+  const cachedBoot = getCachedBootData();
+  const cachedRoute = location.search.includes("wtr_preview_token") ? null : getCachedResolvedRoute(location.pathname);
+  const [site, setSite] = useState(cachedBoot.site);
+  const [menus, setMenus] = useState(cachedBoot.menus || {});
+  const [pages, setPages] = useState(cachedBoot.pages?.items || []);
+  const [posts, setPosts] = useState(cachedBoot.posts?.items || []);
+  const [routeData, setRouteData] = useState(cachedRoute);
+  const [bootLoading, setBootLoading] = useState(!(cachedBoot.site && cachedBoot.menus));
+  const [routeLoading, setRouteLoading] = useState(!cachedRoute);
   const [error, setError] = useState("");
-
-  const routeState = useMemo(() => {
-    const url = new URL(route, window.location.origin);
-    return {
-      pathname: url.pathname,
-      search: url.search,
-      previewToken: url.searchParams.get("wtr_preview_token")
-    };
-  }, [route]);
-
-  useEffect(() => {
-    const handlePopState = () => {
-      setRoute(window.location.pathname + window.location.search);
-    };
-
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
 
   useEffect(() => {
     async function bootstrap() {
       const [siteData, menuData, pageData, postData] = await Promise.all([
-        apiFetch("/site"),
-        apiFetch("/menus"),
-        apiFetch("/pages?per_page=10"),
-        apiFetch("/posts?per_page=10")
+        fetchSiteConfig(),
+        fetchMenus(),
+        fetchPages(),
+        fetchPosts()
       ]);
-
       setSite(siteData);
       setMenus(menuData);
       setPages(pageData.items || []);
       setPosts(postData.items || []);
     }
 
-    bootstrap().catch((bootstrapError) => {
-      setError(
-        bootstrapError.message ||
-          "Unable to load the WordPress bridge configuration for this frontend."
-      );
-      setLoading(false);
-    });
+    bootstrap()
+      .catch((bootstrapError) => {
+        setError(bootstrapError.message || "Unable to load the WordPress bridge configuration for this frontend.");
+      })
+      .finally(() => {
+        setBootLoading(false);
+      });
   }, []);
 
   useEffect(() => {
     async function loadRoute() {
-      if (!site) {
-        return;
+      setError("");
+      const params = new URLSearchParams(location.search);
+      const previewToken = params.get("wtr_preview_token");
+      const hasUsableRoute = !previewToken && routeMatchesPath(routeData, location.pathname);
+
+      if (!hasUsableRoute) {
+        setRouteLoading(true);
       }
 
-      setLoading(true);
-      setError("");
-      setRouteData(null);
-
       try {
-        if (routeState.previewToken) {
-          const previewData = await apiFetch(`/preview/${encodeURIComponent(routeState.previewToken)}`);
+        if (previewToken) {
+          const previewData = await fetchPreviewContent(previewToken);
           setRouteData(previewData);
           return;
         }
 
-        const resolved = await apiFetch(`/resolve?path=${encodeURIComponent(routeState.pathname)}`);
+        const resolved = await resolveContent(location.pathname);
         setRouteData(resolved);
       } catch (routeError) {
         if (routeError?.status === 404) {
@@ -1626,38 +764,68 @@ function App() {
 
         setError(routeError.message || "Route lookup failed.");
       } finally {
-        setLoading(false);
+        setRouteLoading(false);
       }
     }
 
-    loadRoute();
-  }, [routeState, site]);
+    if (site) {
+      loadRoute();
+    }
+  }, [location.pathname, location.search, site]);
+
+  useEffect(() => {
+    document.title = getDocumentTitle(routeData, location.pathname);
+  }, [routeData, location.pathname]);
+
+  const pageContent = useMemo(() => {
+    if (bootLoading || error) {
+      return null;
+    }
+
+    return (
+      <>
+        {routeData?.is_preview ? <PreviewBanner content={routeData} currentPath={currentPath} /> : null}
+        {isHomeRoute(routeData) ? <HomeExperience site={site} route={routeData} pages={pages} posts={posts} /> : null}
+        {routeData?.route_type === "singular" && !isHomeRoute(routeData) ? <ContentView content={routeData} /> : null}
+        {routeData?.route_type === "archive" && routeData?.path !== "/" ? <ArchiveView route={routeData} /> : null}
+        {!routeLoading && !routeData ? <EmptyRoute /> : null}
+      </>
+    );
+  }, [bootLoading, currentPath, error, pages, posts, routeData, routeLoading, site]);
+
+  const showRouteOverlay = Boolean(routeData && routeLoading && pageContent);
 
   return (
     <div className="app-shell">
       <Header site={site} menus={menus} pages={pages} posts={posts} />
-
       <main className="site-main">
-        {loading ? <p className="status">Loading content...</p> : null}
-        {!loading && error ? <FailureState message={error} /> : null}
-        {!loading && !error && routeData?.is_preview ? (
-          <PreviewBanner content={routeData} currentPath={route} />
+        {bootLoading || (!routeData && routeLoading) ? <RouteLoadingShell /> : null}
+        {!bootLoading && !routeLoading && error ? <FailureState message={error} /> : null}
+        {pageContent ? (
+          <div className="page-stage">
+            <div key={currentPath} className="page-transition">{pageContent}</div>
+            {showRouteOverlay ? (
+              <div className="route-loading-overlay">
+                <div className="route-loading-veil" />
+                <div className="route-loading-chip" aria-hidden="true">
+                  <span className="route-loading-chip__dot" />
+                  <span>Loading next page</span>
+                </div>
+                <div className="route-loading-progress" aria-hidden="true" />
+              </div>
+            ) : null}
+          </div>
         ) : null}
-        {!loading && !error && routeData?.route_type === "singular" ? (
-          <ContentView content={routeData} />
-        ) : null}
-        {!loading && !error && routeData?.route_type === "archive" && routeData?.path === "/" ? (
-          <HomeExperience site={site} route={routeData} pages={pages} posts={posts} />
-        ) : null}
-        {!loading && !error && routeData?.route_type === "archive" && routeData?.path !== "/" ? (
-          <ArchiveView route={routeData} />
-        ) : null}
-        {!loading && !error && !routeData ? <EmptyRoute /> : null}
       </main>
-
       <Footer site={site} menus={menus} pages={pages} posts={posts} />
     </div>
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+);

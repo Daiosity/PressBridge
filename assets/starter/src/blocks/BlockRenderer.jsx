@@ -27,8 +27,10 @@ export function BlockList({ blocks = [] }) {
   );
 }
 
-export function BlockContent({ blocks = [], html = "" }) {
-  if (blocks.length) {
+export function BlockContent({ blocks = [], html = "", renderMode = "blocks", compatibility = {} }) {
+  const preferHtml = renderMode === "html" && Boolean(html);
+
+  if (blocks.length && !preferHtml) {
     return (
       <div className="content-body content-body-blocks">
         <BlockList blocks={blocks} />
@@ -40,7 +42,16 @@ export function BlockContent({ blocks = [], html = "" }) {
     return null;
   }
 
+  const htmlClassName = [
+    "content-body",
+    "content-body-html",
+    compatibility?.is_shortcode_content ? "content-body-html--shortcode" : "",
+    compatibility?.is_woocommerce_shortcode_page ? "content-body-html--woocommerce" : ""
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <div className="content-body content-body-html" dangerouslySetInnerHTML={{ __html: html }} />
+    <div className={htmlClassName} dangerouslySetInnerHTML={{ __html: html }} />
   );
 }

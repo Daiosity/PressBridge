@@ -38,6 +38,7 @@ Use this checklist before shipping a plugin ZIP to anyone else.
 6. Verify unresolved frontend routes show a clean empty state rather than a fatal or broken shell.
 7. Verify API failure states explain how to reconnect WordPress and the frontend.
 8. Verify singular Gutenberg-authored pages still render cleanly after any renderer changes.
+9. Verify the shipped starter still reads as a generic PressBridge starter rather than a project-specific implementation.
 
 ## Cleanup test
 
@@ -58,3 +59,4 @@ Before calling the build "alpha-ready", confirm:
 2. Preview flow still works from the editor to the frontend.
 3. The frontend starter and smoke frontend are still behaviorally aligned with the plugin.
 4. Known limitations in `README.md` are still honest.
+5. Any WooCommerce compatibility work is still framed as an advanced compatibility layer, not a default starter guarantee.

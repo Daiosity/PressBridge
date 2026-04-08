@@ -12,6 +12,27 @@ use WP_Post;
 
 class Content_Mapper {
 	/**
+	 * Shortcodes that should prefer server-rendered HTML over block translation.
+	 *
+	 * @var array<string, string>
+	 */
+	private const SHORTCODE_COMPATIBILITY_TAGS = array(
+		'products'              => 'woocommerce',
+		'product_page'          => 'woocommerce',
+		'product_category'      => 'woocommerce',
+		'product_categories'    => 'woocommerce',
+		'sale_products'         => 'woocommerce',
+		'best_selling_products' => 'woocommerce',
+		'recent_products'       => 'woocommerce',
+		'featured_products'     => 'woocommerce',
+		'top_rated_products'    => 'woocommerce',
+		'woocommerce_cart'      => 'woocommerce',
+		'woocommerce_checkout'  => 'woocommerce',
+		'woocommerce_my_account'=> 'woocommerce',
+		'add_to_cart'           => 'woocommerce',
+	);
+
+	/**
 	 * Shared path helper.
 	 *
 	 * @var Path_Helper
@@ -43,6 +64,8 @@ class Content_Mapper {
 		$title            = $this->get_render_title( $post, $preview_post );
 		$excerpt          = $this->get_render_excerpt( $post, $preview_post );
 		$content          = $this->render_content( $post, $preview_post->post_content );
+		$blocks           = $include_blocks ? $this->get_render_blocks( $post, $preview_post->post_content ) : array();
+		$compatibility    = $this->get_content_compatibility( $preview_post->post_content );
 		$modified_at      = $preview_post->post_modified_gmt ? $preview_post->post_modified_gmt : $preview_post->post_modified;
 
 		$data = array(
@@ -69,13 +92,81 @@ class Content_Mapper {
 			'is_front_page'  => (int) get_option( 'page_on_front' ) === (int) $post->ID,
 			'is_posts_page'  => (int) get_option( 'page_for_posts' ) === (int) $post->ID,
 			'is_preview'     => ! empty( $context['is_preview'] ),
+			'render_mode'    => $compatibility['render_mode'],
+			'compatibility'  => $compatibility,
 		);
 
 		if ( $include_blocks ) {
-			$data['blocks'] = $this->get_render_blocks( $post, $preview_post->post_content );
+			$data['blocks'] = $blocks;
 		}
 
 		return apply_filters( 'wtr_mapped_post', $data, $post, $context );
+	}
+
+	/**
+	 * Detect content that should prefer a server-rendered compatibility path.
+	 *
+	 * @param string $content Raw post content.
+	 * @return array
+	 */
+	private function get_content_compatibility( $content ) {
+		$shortcodes        = $this->detect_compatible_shortcodes( (string) $content );
+		$sources           = array_values(
+			array_unique(
+				array_map(
+					static function ( $shortcode ) {
+						return self::SHORTCODE_COMPATIBILITY_TAGS[ $shortcode ] ?? 'generic';
+					},
+					$shortcodes
+				)
+			)
+		);
+		$is_shortcode_page = ! empty( $shortcodes );
+		$is_woo_page       = in_array( 'woocommerce', $sources, true );
+
+		return array(
+			'render_mode'                    => $is_shortcode_page ? 'html' : 'blocks',
+			'shortcodes'                     => $shortcodes,
+			'sources'                        => $sources,
+			'is_shortcode_content'           => $is_shortcode_page,
+			'is_woocommerce_shortcode_page'  => $is_woo_page,
+		);
+	}
+
+	/**
+	 * Detect approved shortcode tags present in raw content.
+	 *
+	 * @param string $content Raw post content.
+	 * @return array
+	 */
+	private function detect_compatible_shortcodes( $content ) {
+		if ( '' === trim( $content ) ) {
+			return array();
+		}
+
+		$tags = array_keys( self::SHORTCODE_COMPATIBILITY_TAGS );
+
+		if ( empty( $tags ) ) {
+			return array();
+		}
+
+		$pattern = get_shortcode_regex( $tags );
+
+		if ( empty( $pattern ) || ! preg_match_all( '/' . $pattern . '/', $content, $matches ) ) {
+			return array();
+		}
+
+		$detected = array();
+
+		foreach ( $matches[2] as $tag ) {
+			$tag = sanitize_key( $tag );
+
+			if ( isset( self::SHORTCODE_COMPATIBILITY_TAGS[ $tag ] ) && shortcode_exists( $tag ) ) {
+				$detected[] = $tag;
+			}
+		}
+
+		return array_values( array_unique( $detected ) );
 	}
 
 	/**
@@ -85,10 +176,44 @@ class Content_Mapper {
 	 * @return string
 	 */
 	private function render_content( WP_Post $post, $content = null ) {
+		$raw_content    = null === $content ? $post->post_content : $content;
+		$compatibility  = $this->get_content_compatibility( $raw_content );
+
+		if ( ! empty( $compatibility['is_woocommerce_shortcode_page'] ) ) {
+			return $this->render_woocommerce_content( $post, $raw_content );
+		}
+
 		return $this->with_post_context(
 			$post,
-			static function () use ( $post, $content ) {
-				return apply_filters( 'the_content', null === $content ? $post->post_content : $content );
+			static function () use ( $raw_content ) {
+				return apply_filters( 'the_content', $raw_content );
+			}
+		);
+	}
+
+	/**
+	 * Render WooCommerce shortcode content inside a frontend-compatible context.
+	 *
+	 * @param WP_Post $post Post object.
+	 * @param string  $content Raw post content.
+	 * @return string
+	 */
+	private function render_woocommerce_content( WP_Post $post, $content ) {
+		return $this->with_post_context(
+			$post,
+			function () use ( $content ) {
+				$restore = $this->bootstrap_woocommerce_rendering();
+				$output  = apply_filters( 'the_content', $content );
+
+				if ( '' === trim( wp_strip_all_tags( (string) $output ) ) ) {
+					$output = do_shortcode( $content );
+				}
+
+				if ( is_callable( $restore ) ) {
+					$restore();
+				}
+
+				return (string) $output;
 			}
 		);
 	}
@@ -313,6 +438,52 @@ class Content_Mapper {
 				return render_block( $block );
 			}
 		);
+	}
+
+	/**
+	 * Bootstrap WooCommerce session and cart state so frontend shortcodes can render in REST requests.
+	 *
+	 * @return callable|null
+	 */
+	private function bootstrap_woocommerce_rendering() {
+		if ( ! class_exists( 'WooCommerce' ) || ! function_exists( 'WC' ) ) {
+			return null;
+		}
+
+		$rest_filter = static function () {
+			return false;
+		};
+
+		add_filter( 'woocommerce_is_rest_api_request', $rest_filter, 0 );
+
+		try {
+			if ( method_exists( WC(), 'frontend_includes' ) ) {
+				WC()->frontend_includes();
+			}
+
+			if ( method_exists( WC(), 'initialize_session' ) ) {
+				WC()->initialize_session();
+			}
+
+			if ( method_exists( WC(), 'initialize_cart' ) ) {
+				WC()->initialize_cart();
+			}
+
+			if ( function_exists( 'wc_load_cart' ) ) {
+				wc_load_cart();
+			}
+
+			if ( WC()->cart && method_exists( WC()->cart, 'get_cart' ) ) {
+				WC()->cart->get_cart();
+			}
+		} catch ( \Throwable $error ) {
+			remove_filter( 'woocommerce_is_rest_api_request', $rest_filter, 0 );
+			return null;
+		}
+
+		return static function () use ( $rest_filter ) {
+			remove_filter( 'woocommerce_is_rest_api_request', $rest_filter, 0 );
+		};
 	}
 
 	/**

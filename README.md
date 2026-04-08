@@ -71,6 +71,7 @@ High-level flow:
 - `View in React` shortcuts for logged-in users
 - React starter export
 - Gutenberg-aware content rendering with safe fallback for unsupported blocks
+- HTML fallback path for shortcode-heavy content when block rendering is not the right fit
 
 ## How PressBridge is different
 
@@ -109,8 +110,8 @@ python server.py
 
 4. Test the bridge:
 
-- `http://pressbridge.local/wp-json/pressbridge/v1/site`
-- `http://pressbridge.local/wp-json/pressbridge/v1/resolve?path=/`
+- `http://wp-to-react.local/wp-json/pressbridge/v1/site`
+- `http://wp-to-react.local/wp-json/pressbridge/v1/resolve?path=/`
 - `http://localhost:5173/`
 
 5. When routes are rendering correctly, enable headless mode and switch route handling to redirect mode.
@@ -152,7 +153,8 @@ PressBridge is still an alpha, and this repo is honest about that.
 - It does not aim to clone the active WordPress theme pixel-for-pixel
 - Gutenberg block fidelity is improving, but it is still a translation layer into a React-side design system
 - No ACF integration yet
-- No WooCommerce integration yet
+- WooCommerce is currently an advanced compatibility path, not a default starter feature
+- WooCommerce cart and checkout flows are easiest when the public frontend and store share the same primary domain
 - No authenticated frontend/session bridge yet
 - No SSR or Next.js integration yet
 - `frontend-lite` is for smoke testing, not the long-term production frontend structure
@@ -163,7 +165,7 @@ Planned or likely next areas, not promises:
 
 - Gutenberg mapping improvements
 - Elementor support
-- WooCommerce support
+- WooCommerce compatibility layer
 
 ## Demo
 
