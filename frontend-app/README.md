@@ -4,11 +4,14 @@ This frontend expects the repo's Local WordPress site at `http://wp-to-react.loc
 
 ## Quick start
 
-1. Install dependencies with `npm install`
-2. Confirm your local API base points to `http://wp-to-react.local/wp-json/pressbridge/v1`
-3. Start the dev server with `npm run dev`
-4. Open `http://localhost:5173`
-5. Once the app renders correctly, switch the plugin route mode to React redirect for full handoff testing
+1. Build the plugin ZIP with `powershell -ExecutionPolicy Bypass -File ..\scripts\build-plugin.ps1` if you have not installed PressBridge yet.
+2. Install and activate the built `build/pressbridge-{version}.zip` file in WordPress.
+3. In `Settings > PressBridge`, set the frontend URL to `http://localhost:5173` and keep route mode on WordPress rendering.
+4. Install dependencies with `npm install`.
+5. Confirm your local API base points to `http://wp-to-react.local/wp-json/pressbridge/v1`.
+6. Start the dev server with `npm run dev`.
+7. Open `http://localhost:5173`.
+8. Once the app renders correctly, switch the plugin route mode to React redirect for full handoff testing.
 
 ## Notes
 
@@ -40,3 +43,10 @@ WooCommerce compatibility is being treated as an advanced layer, not the default
 - The plugin REST endpoints are responding
 - The site is currently in safe WordPress route mode, not full redirect mode
 - You can switch to redirect mode after this frontend is running
+
+## First-time preview check
+
+1. Create or edit a draft page in WordPress.
+2. Click `Preview`.
+3. Confirm the preview URL contains `wtr_preview_token`.
+4. Confirm the frontend renders a visible preview state instead of the published page.

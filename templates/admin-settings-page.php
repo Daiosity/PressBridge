@@ -17,6 +17,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:20px 0;">
 		<div class="card" style="padding:16px;">
+			<h2 style="margin-top:0;"><?php esc_html_e( 'First-Time Setup', 'pressbridge' ); ?></h2>
+			<ol style="margin:0 0 0 18px;display:grid;gap:8px;">
+				<li><?php esc_html_e( 'Set your frontend URL, for example http://localhost:5173.', 'pressbridge' ); ?></li>
+				<li><?php esc_html_e( 'Keep route handling on WordPress mode while you integrate.', 'pressbridge' ); ?></li>
+				<li><?php esc_html_e( 'Start the React starter and confirm the site and resolve endpoints return JSON.', 'pressbridge' ); ?></li>
+				<li><?php esc_html_e( 'Preview a draft before enabling redirect mode.', 'pressbridge' ); ?></li>
+			</ol>
+			<p class="description" style="margin-top:12px;"><?php esc_html_e( 'PressBridge is safest when rollout happens in this order: connect the frontend, verify routes, verify preview, then enable redirect handoff.', 'pressbridge' ); ?></p>
+		</div>
+
+		<div class="card" style="padding:16px;">
 			<h2 style="margin-top:0;"><?php esc_html_e( 'Current Status', 'pressbridge' ); ?></h2>
 			<p>
 				<strong><?php esc_html_e( 'Headless mode:', 'pressbridge' ); ?></strong>

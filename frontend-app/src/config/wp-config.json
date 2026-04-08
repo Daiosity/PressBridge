@@ -1,6 +1,6 @@
 {
-  "siteUrl": "http://pressbridge.local/",
-  "apiBase": "http://pressbridge.local/wp-json/pressbridge/v1",
+  "siteUrl": "http://wp-to-react.local/",
+  "apiBase": "http://wp-to-react.local/wp-json/pressbridge/v1",
   "frontendUrl": "http://localhost:5173",
   "routeMode": "wordpress",
   "headlessMode": true

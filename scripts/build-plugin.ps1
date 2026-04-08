@@ -1,9 +1,23 @@
 $ErrorActionPreference = 'Stop'
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
+$pluginBootstrap = Join-Path $projectRoot 'pressbridge.php'
 $buildRoot = Join-Path $projectRoot 'build'
 $packageRoot = Join-Path $buildRoot 'pressbridge'
-$zipPath = Join-Path $buildRoot 'pressbridge-0.2.0.zip'
+
+if (-not (Test-Path $pluginBootstrap)) {
+    throw "Could not find plugin bootstrap file at $pluginBootstrap"
+}
+
+$pluginHeader = Get-Content -LiteralPath $pluginBootstrap -Raw
+$versionMatch = [regex]::Match($pluginHeader, '(?m)^\s*\*\s*Version:\s*(?<version>[0-9A-Za-z.\-_]+)\s*$')
+
+if (-not $versionMatch.Success) {
+    throw "Could not determine plugin version from $pluginBootstrap"
+}
+
+$pluginVersion = $versionMatch.Groups['version'].Value
+$zipPath = Join-Path $buildRoot ("pressbridge-$pluginVersion.zip")
 
 $itemsToCopy = @(
     'pressbridge.php',

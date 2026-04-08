@@ -116,6 +116,18 @@ function getPresetStyleValue(category, value) {
     return undefined;
   }
 
+  const presetFallbacks = {
+    color: {
+      base: "#ffffff",
+      contrast: "#111827",
+      primary: "#2563eb",
+      secondary: "#475569",
+      tertiary: "#dbeafe",
+      foreground: "#111827",
+      background: "#ffffff"
+    }
+  };
+
   if (
     value.startsWith("var(--") ||
     value.startsWith("#") ||
@@ -125,6 +137,12 @@ function getPresetStyleValue(category, value) {
     value.startsWith("radial-gradient")
   ) {
     return value;
+  }
+
+  const fallback = presetFallbacks[category]?.[value];
+
+  if (fallback) {
+    return fallback;
   }
 
   return `var(--wp--preset--${category}--${value})`;
@@ -413,7 +431,10 @@ export function getCoverStyle(block) {
 
 export function getCoverOverlayStyle(block) {
   const dimRatio = Number(block?.attrs?.dimRatio ?? 50);
-  const overlayColor = block?.attrs?.overlayColor || block?.attrs?.customOverlayColor || "#17324d";
+  const overlayColor =
+    block?.attrs?.customOverlayColor ||
+    getPresetStyleValue("color", block?.attrs?.overlayColor) ||
+    "#17324d";
 
   return {
     backgroundColor: overlayColor,

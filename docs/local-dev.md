@@ -15,9 +15,11 @@ Recommended WordPress checks before frontend work:
 
 1. Start the site in Local.
 2. Open `http://wp-to-react.local`.
-3. Confirm `PressBridge` is active.
-4. Open `Settings > PressBridge`.
-5. Set the frontend URL you plan to test against.
+3. If PressBridge is not installed yet, build `build/pressbridge-{version}.zip` with `powershell -ExecutionPolicy Bypass -File .\scripts\build-plugin.ps1` and install it through `Plugins > Add New > Upload Plugin`.
+4. Confirm `PressBridge` is active.
+5. Open `Settings > PressBridge`.
+6. Set the frontend URL you plan to test against.
+7. Keep route handling in WordPress mode until the frontend resolves real routes and preview correctly.
 
 Useful local API checks:
 
@@ -73,11 +75,12 @@ The smoke frontend is intentionally simpler than the Vite app. It should reflect
 ## Recommended local workflow
 
 1. Start WordPress in Local.
-2. Confirm the PressBridge API is responding.
-3. Start either `frontend-app` or `frontend-lite`.
-4. Set the frontend URL in WordPress.
-5. Keep route handling in WordPress mode until page, post, archive, and preview rendering are working.
-6. Only then enable redirect handoff.
+2. If needed, install the latest PressBridge ZIP in WordPress.
+3. Confirm the PressBridge API is responding.
+4. Start either `frontend-app` or `frontend-lite`.
+5. Set the frontend URL in WordPress.
+6. Keep route handling in WordPress mode until page, post, archive, and preview rendering are working.
+7. Only then enable redirect handoff.
 
 ## Preview flow locally
 

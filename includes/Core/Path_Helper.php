@@ -24,7 +24,8 @@ class Path_Helper {
 			return '/';
 		}
 
-		$parsed_path = wp_parse_url( $path, PHP_URL_PATH );
+		$is_absolute_url = 1 === preg_match( '#^[a-z][a-z0-9+\-.]*://#i', $path );
+		$parsed_path     = $is_absolute_url ? wp_parse_url( $path, PHP_URL_PATH ) : null;
 
 		if ( is_string( $parsed_path ) && '' !== $parsed_path ) {
 			$path = $parsed_path;
