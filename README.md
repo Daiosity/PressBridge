@@ -55,12 +55,12 @@ React frontend (public presentation)
 
 ## Visual Proof
 
-### Author in WordPress. Render through React.
+### Same content. Two frontends.
 
-![WordPress editor to React rendering comparison](docs/assets/screenshots/wp-to-react-render.png)
+![WordPress to React rendering comparison](docs/assets/screenshots/wp-to-react-render.png)
 
 Caption:
-- Author in WordPress. Render through React.
+- Same content. Two frontends.
 
 ### A starter frontend is included so you are not beginning from a blank bridge.
 

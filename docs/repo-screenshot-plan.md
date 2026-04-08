@@ -4,7 +4,7 @@ This plan defines the screenshot set for the README and repo-facing materials.
 
 The goal is to make PressBridge understandable through real results:
 
-- WordPress editing
+- WordPress rendering
 - React rendering
 - preview working
 - routing working
@@ -57,35 +57,34 @@ If those IDs ever change, use the regenerated values in [build/demo-content-map.
 Recommended capture order:
 
 1. starter running example
-2. WordPress editor to React comparison
+2. WordPress to React comparison
 3. Gutenberg layout example
 4. preview flow example
 5. nested route example
 6. simple page or post baseline
 
-That order keeps the capture session fast and makes it easy to reuse the layout demo page for both the editor-comparison shot and the Gutenberg layout shot.
+That order keeps the capture session fast and makes it easy to reuse the layout demo page for both the comparison shot and the Gutenberg layout shot.
 
-## Screenshot 1: WordPress Editor To React Result
+## Screenshot 1: WordPress To React Rendering Comparison
 
 - WordPress URL:
-  - `http://wp-to-react.local/wp-admin/post.php?post=25&action=edit`
+  - `http://wp-to-react.local/pb-demo-layout/`
 - Frontend URL:
   - `http://localhost:5173/pb-demo-layout/`
 - What to show in frame:
-  - WordPress block editor open on the layout demo
-  - the React frontend route open beside it
-  - enough of the cover, grouped content, and buttons to show the same source content rendering in React
+  - the WordPress-rendered page on one side
+  - the React frontend route on the other
+  - enough of the cover, grouped content, and buttons to show the same source content rendered through two frontends
 - Crop out:
   - browser bookmarks
   - unrelated desktop UI
-  - wp-admin left nav if it makes the editor side too noisy
 - Expected good result:
-  - it is obvious that the editor content and the frontend result are the same page
+  - it is obvious that both sides are the same page content
   - the React side looks like a cleaner frontend presentation, not a different CMS
 - Final caption:
-  - `Author in WordPress. Render through React.`
+  - `Same content. Two frontends.`
 - Why it helps:
-  - this is the fastest explanation of the product model
+  - this is the fastest explanation of the bridge model without depending on the editor UI in frame
 
 ## Screenshot 2: Preview Flow Example
 
@@ -196,7 +195,7 @@ That order keeps the capture session fast and makes it easy to reuse the layout 
 
 ## Recommended README Order
 
-1. WordPress editor to React result
+1. WordPress to React rendering comparison
 2. starter running example
 3. Gutenberg layout example
 4. preview flow example

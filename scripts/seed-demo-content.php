@@ -150,7 +150,7 @@ function pressbridge_demo_upsert_content( mysqli $mysqli, array $item, $home_url
 
 	if ( $existing_id ) {
 		$update_stmt->bind_param(
-			'ssssssissi',
+			'ssssssisssi',
 			$post_date,
 			$post_date,
 			$item['post_content'],
