@@ -26,7 +26,7 @@ $versionMatch = [regex]::Match($pluginHeader, '(?m)^\s*\*\s*Version:\s*(?<versio
 Assert-Condition $versionMatch.Success "Could not determine plugin version from $pluginBootstrap"
 
 $pluginVersion = $versionMatch.Groups['version'].Value
-$zipPath = Join-Path $buildRoot ("pressbridge-$pluginVersion.zip")
+$zipPath = Join-Path $buildRoot ("lenviqa-$pluginVersion.zip")
 
 if (-not $SkipBuild) {
     & powershell -ExecutionPolicy Bypass -File $buildScript | Out-Null
@@ -43,8 +43,8 @@ New-Item -ItemType Directory -Path $stagingRoot -Force | Out-Null
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::ExtractToDirectory($zipPath, $stagingRoot)
 
-$packageRoot = Join-Path $stagingRoot 'pressbridge'
-Assert-Condition (Test-Path $packageRoot) "Extracted zip does not contain a top-level pressbridge folder."
+$packageRoot = Join-Path $stagingRoot 'lenviqa'
+Assert-Condition (Test-Path $packageRoot) "Extracted zip does not contain a top-level lenviqa folder."
 
 $requiredItems = @(
     'pressbridge.php',
@@ -91,7 +91,7 @@ Assert-Condition ($packagedStarterExport -match "src/config/wp-config\.json") 'P
 Assert-Condition ($packagedStarterExport -match "'apiBase'\s*=>\s*untrailingslashit") 'Packaged starter export is missing apiBase runtime config wiring.'
 
 Write-Host ''
-Write-Host 'PressBridge package validation passed.' -ForegroundColor Green
+Write-Host 'Lenviqa package validation passed.' -ForegroundColor Green
 Write-Host "Version:  $pluginVersion"
 Write-Host "ZIP:      $zipPath"
 Write-Host "Package:  $packageRoot"

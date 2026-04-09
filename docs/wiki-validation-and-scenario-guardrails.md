@@ -1,6 +1,6 @@
 # Validation And Scenario Guardrails
 
-PressBridge core beta confidence comes from repeatable scenario coverage, not broad unsupported claims.
+Lenviqa core beta confidence comes from repeatable scenario coverage, not broad unsupported claims.
 
 The current guardrails cover:
 
@@ -42,4 +42,4 @@ Related pages:
 
 - [Supported Beta Scope](wiki-supported-beta-scope.md)
 - [Limitations and Non-Goals](wiki-limitations-and-non-goals.md)
-- [How PressBridge Works](wiki-how-pressbridge-works.md)
+- [How Lenviqa Works](wiki-how-Lenviqa-works.md)

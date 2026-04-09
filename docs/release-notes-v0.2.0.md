@@ -1,8 +1,8 @@
-# PressBridge v0.2.0 Release Notes
+# Lenviqa v0.2.0 Release Notes
 
 ## Summary
 
-PressBridge is a WordPress plugin and starter frontend setup for developers who want WordPress as the CMS and React as the public frontend.
+Lenviqa is a WordPress plugin and starter frontend setup for developers who want WordPress as the CMS and React as the public frontend.
 
 This `v0.2.0` release is the first public beta-core release. The focus is not feature breadth. The focus is a smaller, validated bridge promise that developers can evaluate honestly.
 

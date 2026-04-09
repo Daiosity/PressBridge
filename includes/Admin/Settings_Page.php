@@ -54,8 +54,8 @@ class Settings_Page {
 	 */
 	public function register_menu() {
 		add_options_page(
-			__( 'PressBridge', 'pressbridge' ),
-			__( 'PressBridge', 'pressbridge' ),
+			__( 'Lenviqa', 'pressbridge' ),
+			__( 'Lenviqa', 'pressbridge' ),
 			'manage_options',
 			Settings::PAGE_SLUG,
 			array( $this, 'render_page' )
@@ -87,7 +87,7 @@ class Settings_Page {
 	 */
 	public function render_page() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to manage PressBridge settings.', 'pressbridge' ) );
+			wp_die( esc_html__( 'You do not have permission to manage Lenviqa settings.', 'pressbridge' ) );
 		}
 
 		$settings = $this->settings->get_all();

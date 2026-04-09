@@ -1,10 +1,10 @@
 const { useEffect, useMemo, useState } = React;
 const { BrowserRouter, Link, useLocation } = ReactRouterDOM;
 
-const SITE_TITLE = "PressBridge";
+const SITE_TITLE = "Lenviqa";
 const SITE_TAGLINE = "Connect WordPress to modern frontends.";
 const DEFAULT_API_BASE = "http://wp-to-react.local/wp-json/pressbridge/v1";
-const CACHE_PREFIX = "pressbridge-lite:";
+const CACHE_PREFIX = "Lenviqa-lite:";
 const memoryCache = new Map();
 const SESSION_ROUTE_PATTERNS = [/^\/cart\/?$/i, /^\/checkout\/?$/i, /^\/my-account\/?$/i];
 
@@ -12,7 +12,7 @@ const STARTER_HOME = {
   eyebrow: "Headless-ready WordPress",
   title: "Same WordPress content. Better frontend.",
   intro:
-    "PressBridge keeps WordPress as the CMS while React handles the public presentation layer. This lightweight frontend is here for smoke testing route resolution, preview flow, and starter rendering without a build step.",
+    "Lenviqa keeps WordPress as the CMS while React handles the public presentation layer. This lightweight frontend is here for smoke testing route resolution, preview flow, and starter rendering without a build step.",
   note:
     "Use the Vite app for long-term frontend work. Use this lite app when you want a quick local check that the bridge is working."
 };
@@ -92,7 +92,7 @@ async function apiFetch(path) {
     });
   } catch (networkError) {
     throw new Error(
-      "Unable to reach the PressBridge API. Confirm WordPress is running, the plugin is active, and the API base URL is correct."
+      "Unable to reach the Lenviqa API. Confirm WordPress is running, the plugin is active, and the API base URL is correct."
     );
   }
 
@@ -114,7 +114,7 @@ async function apiFetch(path) {
   try {
     return await response.json();
   } catch (parseError) {
-    throw new Error("The PressBridge API returned an invalid JSON response.");
+    throw new Error("The Lenviqa API returned an invalid JSON response.");
   }
 }
 
@@ -414,7 +414,7 @@ function Header({ site, menus, pages, posts }) {
         </div>
         <div className="brand-block">
           <p className="eyebrow">Lite smoke frontend</p>
-          <Link className="site-title" to="/">PressBridge</Link>
+          <Link className="site-title" to="/">Lenviqa</Link>
           <p className="site-description">{SITE_TAGLINE}</p>
         </div>
       </div>
@@ -441,7 +441,7 @@ function Footer({ site, menus, pages, posts }) {
   return (
     <footer className="site-footer-shell">
       <div className="footer-column">
-        <p className="eyebrow">PressBridge</p>
+        <p className="eyebrow">Lenviqa</p>
         <h2>Quick smoke checks without the Vite build.</h2>
         <p>This frontend is intentionally lightweight. It exists to verify route resolution, preview flow, and starter rendering against a live WordPress site.</p>
       </div>
@@ -585,7 +585,7 @@ function LatestContentSection({ route, posts }) {
           <article key={item.id} className="archive-card">
             <p className="eyebrow">{item.post_type_label || item.post_type}</p>
             <h3><Link to={item.path}>{item.title}</Link></h3>
-            <p>{item.excerpt || "Published in WordPress and delivered through the PressBridge frontend layer."}</p>
+            <p>{item.excerpt || "Published in WordPress and delivered through the Lenviqa frontend layer."}</p>
           </article>
         ))}
       </div>
@@ -633,8 +633,8 @@ function CompatibilityNotice({ content }) {
       </h2>
       <p className="lede">
         {isWoo
-          ? "PressBridge is rendering server-side WooCommerce output for this route so the starter can keep working without pretending WooCommerce is a normal starter-level content type."
-          : "PressBridge is rendering server-side HTML for this route because block translation is not the right fit for the content it contains."}
+          ? "Lenviqa is rendering server-side WooCommerce output for this route so the starter can keep working without pretending WooCommerce is a normal starter-level content type."
+          : "Lenviqa is rendering server-side HTML for this route because block translation is not the right fit for the content it contains."}
       </p>
       <div className="status-chip-row">
         <span className="status-chip">Render mode: {content?.render_mode || "html"}</span>
@@ -696,7 +696,7 @@ function FailureState({ message }) {
       <p className="lede">{message}</p>
       <ul className="stack-list">
         <li>Confirm WordPress is running and reachable from this frontend.</li>
-        <li>Confirm the PressBridge plugin is active and the custom REST routes are available.</li>
+        <li>Confirm the Lenviqa plugin is active and the custom REST routes are available.</li>
         <li>Confirm the frontend API base matches the WordPress site you want to render.</li>
       </ul>
     </section>

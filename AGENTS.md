@@ -2,7 +2,7 @@
 
 ## Project Purpose
 
-PressBridge is a WordPress plugin that connects WordPress to modern frontends.
+Lenviqa is a WordPress plugin that connects WordPress to modern frontends.
 
 This repo contains:
 
@@ -114,14 +114,14 @@ Current local testing assumptions:
 
 - the site is managed through Local
 - the current Local site URL in this repo is still `http://wp-to-react.local`
-- the plugin branding is now PressBridge, but the Local hostname has not been renamed
+- the plugin branding is now Lenviqa, but the Local hostname has not been renamed
 
 Practical local flow:
 
 1. Start the site in Local.
 2. Confirm `http://wp-to-react.local` loads.
 3. Confirm the plugin is installed and active.
-4. Open `Settings > PressBridge`.
+4. Open `Settings > Lenviqa`.
 5. Set the frontend URL before testing preview or redirect behavior.
 
 Do not assume WordPress is being run from a custom PHP command unless the user says so. In this repo, Local is the intended local WordPress runtime.
@@ -215,7 +215,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build-plugin.ps1
 
 Expected output:
 
-- [build/pressbridge-0.2.0.zip](C:\Users\Christo\Documents\WordPress Plugin Development\WP to React\build\pressbridge-0.2.0.zip)
+- [build/lenviqa-0.2.0.zip](C:\Users\Christo\Documents\WordPress Plugin Development\WP to React\build\lenviqa-0.2.0.zip)
 
 ### PHP syntax checks
 

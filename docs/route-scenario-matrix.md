@@ -1,6 +1,6 @@
 # Route Scenario Matrix
 
-These scenarios form the lightweight core route guardrail for PressBridge beta-readiness.
+These scenarios form the lightweight core route guardrail for Lenviqa beta-readiness.
 
 They are meant to prove predictable bridge behavior on common and risky route cases. They do not attempt to prove every WordPress permalink variation or advanced content ecosystem.
 
@@ -13,7 +13,7 @@ They are meant to prove predictable bridge behavior on common and risky route ca
 - Local coverage:
   - uses the current Local `show_on_front = posts` configuration
 - Beta-safe meaning:
-  - PressBridge can treat the root route as archive truth when WordPress is using a posts front page
+  - Lenviqa can treat the root route as archive truth when WordPress is using a posts front page
 
 ## Scenario 2: Standard Page Route
 

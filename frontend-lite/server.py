@@ -24,5 +24,5 @@ class SpaHandler(SimpleHTTPRequestHandler):
 if __name__ == "__main__":
     server = ThreadingHTTPServer(("127.0.0.1", 5173), SpaHandler)
     source = "frontend-app/dist" if SERVE_ROOT == DIST_ROOT else "frontend-lite"
-    print(f"Serving PressBridge frontend from {source} at http://127.0.0.1:5173")
+    print(f"Serving Lenviqa frontend from {source} at http://127.0.0.1:5173")
     server.serve_forever()

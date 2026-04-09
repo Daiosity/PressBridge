@@ -1,6 +1,6 @@
 # Limitations And Non-Goals
 
-PressBridge core is intentionally narrower than a full WordPress frontend replacement promise.
+Lenviqa core is intentionally narrower than a full WordPress frontend replacement promise.
 
 Core does not currently promise:
 
@@ -25,4 +25,4 @@ Related pages:
 
 - [Supported Beta Scope](wiki-supported-beta-scope.md)
 - [Validation and Scenario Guardrails](wiki-validation-and-scenario-guardrails.md)
-- [What Is PressBridge](wiki-what-is-pressbridge.md)
+- [What Is Lenviqa](wiki-what-is-pressbridge.md)

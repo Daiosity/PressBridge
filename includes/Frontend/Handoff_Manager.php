@@ -70,7 +70,7 @@ class Handoff_Manager {
 			return;
 		}
 
-		wp_redirect( $target_url, 302, 'PressBridge' );
+		wp_redirect( $target_url, 302, 'pressbridge' );
 		exit;
 	}
 

@@ -1,6 +1,6 @@
 # Supported Beta Scope
 
-PressBridge core is currently beta-safe where the repo has repeatable validation coverage.
+Lenviqa core is currently beta-safe where the repo has repeatable validation coverage.
 
 That validated core currently includes:
 
@@ -37,4 +37,4 @@ Use these docs as the detailed scope boundary:
 - [Limitations and Non-Goals](wiki-limitations-and-non-goals.md)
 - [Quick Start](wiki-quick-start.md)
 
-For the higher-level product boundary, see [What Is PressBridge](wiki-what-is-pressbridge.md).
+For the higher-level product boundary, see [What Is Lenviqa](wiki-what-is-pressbridge.md).

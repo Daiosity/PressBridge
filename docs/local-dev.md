@@ -1,4 +1,4 @@
-# PressBridge Local Development
+# Lenviqa Local Development
 
 This repo is set up for a Local-based WordPress site plus two frontend workflows.
 
@@ -15,9 +15,9 @@ Recommended WordPress checks before frontend work:
 
 1. Start the site in Local.
 2. Open `http://wp-to-react.local`.
-3. If PressBridge is not installed yet, build `build/pressbridge-{version}.zip` with `powershell -ExecutionPolicy Bypass -File .\scripts\build-plugin.ps1` and install it through `Plugins > Add New > Upload Plugin`.
-4. Confirm `PressBridge` is active.
-5. Open `Settings > PressBridge`.
+3. If Lenviqa is not installed yet, build `build/lenviqa-{version}.zip` with `powershell -ExecutionPolicy Bypass -File .\scripts\build-plugin.ps1` and install it through `Plugins > Add New > Upload Plugin`.
+4. Confirm `Lenviqa` is active.
+5. Open `Settings > Lenviqa`.
 6. Set the frontend URL you plan to test against.
 7. Keep route handling in WordPress mode until the frontend resolves real routes and preview correctly.
 
@@ -49,7 +49,7 @@ Use this when:
 - you are changing app code seriously
 - you want the proper starter structure
 - you want to verify the Vite-based frontend rather than the smoke frontend
-- you want to test the generic PressBridge starter, not a custom site implementation
+- you want to test the generic Lenviqa starter, not a custom site implementation
 
 ### Lightweight smoke frontend
 
@@ -75,8 +75,8 @@ The smoke frontend is intentionally simpler than the Vite app. It should reflect
 ## Recommended local workflow
 
 1. Start WordPress in Local.
-2. If needed, install the latest PressBridge ZIP in WordPress.
-3. Confirm the PressBridge API is responding.
+2. If needed, install the latest Lenviqa ZIP in WordPress.
+3. Confirm the Lenviqa API is responding.
 4. Start either `frontend-app` or `frontend-lite`.
 5. Set the frontend URL in WordPress.
 6. Keep route handling in WordPress mode until page, post, archive, and preview rendering are working.
@@ -91,9 +91,9 @@ The smoke frontend is intentionally simpler than the Vite app. It should reflect
 
 If preview fails, check:
 
-- the frontend URL in `Settings > PressBridge`
+- the frontend URL in `Settings > Lenviqa`
 - whether the React frontend is reachable
-- whether the PressBridge API namespace is responding
+- whether the Lenviqa API namespace is responding
 
 ## Common local issues
 
@@ -107,7 +107,7 @@ Check:
 
 ### Redirect mode seems broken while logged in
 
-This is usually expected. PressBridge intentionally avoids redirecting logged-in editors and admins while they work.
+This is usually expected. Lenviqa intentionally avoids redirecting logged-in editors and admins while they work.
 
 ### API route returns 404
 
@@ -119,7 +119,7 @@ Check:
 
 ### Frontend content looks structurally right but not theme-identical
 
-This is expected. PressBridge translates Gutenberg block intent into a React-side design system. It is not a pixel-perfect clone of the active WordPress theme.
+This is expected. Lenviqa translates Gutenberg block intent into a React-side design system. It is not a pixel-perfect clone of the active WordPress theme.
 
 ### WooCommerce route looks different from the starter
 

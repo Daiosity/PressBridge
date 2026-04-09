@@ -1,10 +1,10 @@
-# PressBridge Core Roadmap
+# Lenviqa Core Roadmap
 
-This document defines what PressBridge core needs to do well before premium compatibility layers become the focus.
+This document defines what Lenviqa core needs to do well before premium compatibility layers become the focus.
 
 ## Current status
 
-PressBridge core is in a real alpha.
+Lenviqa core is in a real alpha.
 
 What is already strong:
 
@@ -26,7 +26,7 @@ What is not production-ready yet:
 
 ## Core promise
 
-Core PressBridge should already be useful without paid add-ons.
+Core Lenviqa should already be useful without paid add-ons.
 
 Core should feel reliable for:
 
@@ -41,7 +41,7 @@ Premium should make adoption easier and broader. It should not rescue the base p
 
 ## Beta-ready criteria
 
-PressBridge core is beta-ready when all of the following are true:
+Lenviqa core is beta-ready when all of the following are true:
 
 ### 1. Bridge reliability
 
@@ -165,7 +165,7 @@ The next practical sequence is:
 
 ## Definition of success
 
-Before premium becomes the main story, PressBridge core should already make a developer say:
+Before premium becomes the main story, Lenviqa core should already make a developer say:
 
 - "I can install this cleanly."
 - "I can connect WordPress to React without guessing routes."

@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $pluginBootstrap = Join-Path $projectRoot 'pressbridge.php'
 $buildRoot = Join-Path $projectRoot 'build'
-$packageRoot = Join-Path $buildRoot 'pressbridge'
+$packageRoot = Join-Path $buildRoot 'lenviqa'
 
 if (-not (Test-Path $pluginBootstrap)) {
     throw "Could not find plugin bootstrap file at $pluginBootstrap"
@@ -17,7 +17,7 @@ if (-not $versionMatch.Success) {
 }
 
 $pluginVersion = $versionMatch.Groups['version'].Value
-$zipPath = Join-Path $buildRoot ("pressbridge-$pluginVersion.zip")
+$zipPath = Join-Path $buildRoot ("lenviqa-$pluginVersion.zip")
 
 $itemsToCopy = @(
     'pressbridge.php',

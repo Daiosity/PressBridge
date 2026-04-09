@@ -1,13 +1,13 @@
 <?php
 /**
- * Seed repeatable route scenarios into the Local PressBridge site.
+ * Seed repeatable route scenarios into the Local Lenviqa site.
  *
  * This keeps route validation honest without changing front-page or posts-page
  * options. We seed only the missing hierarchical page cases that the default
  * Local WordPress content does not already provide.
  */
 
-function pressbridge_route_seed_via_db( array $pages ) {
+function Lenviqa_route_seed_via_db( array $pages ) {
 	$sites_file = getenv( 'APPDATA' ) . '/Local/sites.json';
 
 	if ( ! file_exists( $sites_file ) ) {
@@ -148,13 +148,13 @@ function pressbridge_route_seed_via_db( array $pages ) {
 $parent_path = 'pb-route-parent/';
 $child_path  = $parent_path . 'pb-route-child/';
 
-$seed_pages = pressbridge_route_seed_via_db(
+$seed_pages = Lenviqa_route_seed_via_db(
 	array(
 		array(
 			'post_title'   => 'PB Route Parent',
 			'post_name'    => 'pb-route-parent',
 			'post_excerpt' => 'Parent page for hierarchical route validation.',
-			'post_content' => '<p>This parent page exists so PressBridge can validate hierarchical page resolution safely.</p>',
+			'post_content' => '<p>This parent page exists so Lenviqa can validate hierarchical page resolution safely.</p>',
 			'post_parent'  => 0,
 			'path'         => $parent_path,
 		),
@@ -165,13 +165,13 @@ $parent_id = (int) $seed_pages[0]['id'];
 
 $seed_pages = array_merge(
 	$seed_pages,
-	pressbridge_route_seed_via_db(
+	Lenviqa_route_seed_via_db(
 		array(
 			array(
 				'post_title'   => 'PB Route Child',
 				'post_name'    => 'pb-route-child',
 				'post_excerpt' => 'Child page for hierarchical route validation.',
-				'post_content' => '<p>This child page exists so PressBridge can validate nested hierarchical page resolution.</p>',
+				'post_content' => '<p>This child page exists so Lenviqa can validate nested hierarchical page resolution.</p>',
 				'post_parent'  => $parent_id,
 				'path'         => $child_path,
 			),

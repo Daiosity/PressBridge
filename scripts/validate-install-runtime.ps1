@@ -42,7 +42,7 @@ Assert-Condition ($null -ne $siteConfig) "Could not find a Local site for domain
 
 $siteRoot = Join-Path $siteConfig.path 'app\public'
 $pluginsRoot = Join-Path $siteRoot 'wp-content\plugins'
-$installedPluginDir = Join-Path $pluginsRoot 'pressbridge'
+$installedPluginDir = Join-Path $pluginsRoot 'lenviqa'
 $wpConfigPath = Join-Path $siteRoot 'wp-config.php'
 
 Assert-Condition (Test-Path $siteRoot) "Could not find Local WordPress root at $siteRoot"
@@ -63,7 +63,7 @@ Assert-Condition (Test-Path $extensionDir) "Could not find Local PHP extension d
 $pluginHeader = Get-Content -LiteralPath (Join-Path $projectRoot 'pressbridge.php') -Raw
 $versionMatch = [regex]::Match($pluginHeader, '(?m)^\s*\*\s*Version:\s*(?<version>[0-9A-Za-z.\-_]+)\s*$')
 Assert-Condition $versionMatch.Success 'Could not determine plugin version from pressbridge.php'
-$zipPath = Join-Path $buildRoot ("pressbridge-{0}.zip" -f $versionMatch.Groups['version'].Value)
+$zipPath = Join-Path $buildRoot ("lenviqa-{0}.zip" -f $versionMatch.Groups['version'].Value)
 
 if (-not $SkipBuild) {
     & powershell -ExecutionPolicy Bypass -File $packageValidator | Out-Null
@@ -81,8 +81,8 @@ if (Test-Path $installStage) {
 New-Item -ItemType Directory -Path $installExtract -Force | Out-Null
 Expand-Archive -LiteralPath $zipPath -DestinationPath $installExtract -Force
 
-$extractedPluginDir = Join-Path $installExtract 'pressbridge'
-Assert-Condition (Test-Path $extractedPluginDir) "Extracted install package missing pressbridge directory at $extractedPluginDir"
+$extractedPluginDir = Join-Path $installExtract 'lenviqa'
+Assert-Condition (Test-Path $extractedPluginDir) "Extracted install package missing lenviqa directory at $extractedPluginDir"
 
 if (Test-Path $installedPluginDir) {
     Remove-Item -LiteralPath $installedPluginDir -Recurse -Force
@@ -117,7 +117,16 @@ Assert-Condition ($patchedWpConfig -ne $originalWpConfig) 'Could not patch DB_HO
 
 try {
     Set-Content -LiteralPath $wpConfigPath -Value $patchedWpConfig -Encoding ASCII
-    $result = & $phpBin -c $tempIni $runtimeScript $siteRoot 'pressbridge/pressbridge.php'
+    $result = & $phpBin -c $tempIni $runtimeScript $siteRoot 'lenviqa/pressbridge.php'
+    Assert-Condition ($LASTEXITCODE -eq 0) "Runtime validator exited with code $LASTEXITCODE."
+
+    $jsonOutput = ($result | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join [Environment]::NewLine
+    Assert-Condition (-not [string]::IsNullOrWhiteSpace($jsonOutput)) 'Runtime validator returned no JSON output.'
+
+    $parsed = $jsonOutput | ConvertFrom-Json
+    Assert-Condition ($parsed.plugin -eq 'lenviqa/pressbridge.php') "Runtime validator returned unexpected plugin slug '$($parsed.plugin)'."
+    Assert-Condition ($parsed.uninstall_cleanup -eq $true) 'Runtime validator did not confirm uninstall cleanup.'
+
     $result | Write-Output
 }
 finally {

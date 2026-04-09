@@ -1,11 +1,11 @@
-# PressBridge Release Checklist
+# Lenviqa Release Checklist
 
 Use this checklist before shipping a plugin ZIP to anyone else.
 
 ## Packaging
 
 1. Run `powershell -ExecutionPolicy Bypass -File .\scripts\build-plugin.ps1`
-2. Confirm `build/pressbridge-0.2.0.zip` exists.
+2. Confirm `build/lenviqa-0.2.0.zip` exists.
 3. Confirm the ZIP contains only:
    - `pressbridge.php`
    - `readme.txt`
@@ -25,8 +25,8 @@ Use this checklist before shipping a plugin ZIP to anyone else.
 
 1. Install from the ZIP on a clean WordPress site.
 2. Activate the plugin.
-3. Confirm `Settings > PressBridge` loads without PHP notices or missing assets.
-4. Confirm the plugin list shows `PressBridge` and the tagline `Connect WordPress to modern frontends.`
+3. Confirm `Settings > Lenviqa` loads without PHP notices or missing assets.
+4. Confirm the plugin list shows `Lenviqa` and the tagline `Connect WordPress to modern frontends.`
 
 ## Runtime test
 
@@ -38,7 +38,7 @@ Use this checklist before shipping a plugin ZIP to anyone else.
 6. Verify unresolved frontend routes show a clean empty state rather than a fatal or broken shell.
 7. Verify API failure states explain how to reconnect WordPress and the frontend.
 8. Verify singular Gutenberg-authored pages still render cleanly after any renderer changes.
-9. Verify the shipped starter still reads as a generic PressBridge starter rather than a project-specific implementation.
+9. Verify the shipped starter still reads as a generic Lenviqa starter rather than a project-specific implementation.
 
 ## Cleanup test
 

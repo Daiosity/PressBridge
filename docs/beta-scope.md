@@ -1,6 +1,6 @@
-# PressBridge Beta Scope
+# Lenviqa Beta Scope
 
-This document defines the current beta boundary for PressBridge core.
+This document defines the current beta boundary for Lenviqa core.
 
 It is intentionally narrow and technical. Confidence claims in this document should map back to something that is actually covered by the current guardrails:
 
@@ -138,7 +138,7 @@ These areas have supporting validation, but still require manual confirmation or
 
 ## 4. Intentionally out of scope for core
 
-The following are not part of the current beta promise for PressBridge core.
+The following are not part of the current beta promise for Lenviqa core.
 
 - WooCommerce compatibility as a core guarantee
 - split-domain commerce/session reliability

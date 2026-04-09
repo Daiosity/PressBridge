@@ -12,21 +12,21 @@ import {
 } from "./lib/api";
 import { BlockContent } from "./blocks/BlockRenderer";
 
-const SITE_TITLE = "PressBridge";
+const SITE_TITLE = "Lenviqa";
 const SITE_TAGLINE = "Connect WordPress to modern frontends.";
 
 const STARTER_HOME = {
   eyebrow: "Headless-ready WordPress",
   title: "Same WordPress content. Better frontend.",
   intro:
-    "PressBridge keeps WordPress as the CMS while React handles the public presentation layer. The starter frontend resolves WordPress routes, supports preview flow, and gives you a cleaner foundation to build on.",
+    "Lenviqa keeps WordPress as the CMS while React handles the public presentation layer. The starter frontend resolves WordPress routes, supports preview flow, and gives you a cleaner foundation to build on.",
   note:
     "Use this starter as a reusable base. WordPress still manages content, menus, and editorial workflows.",
   capabilityCards: [
     {
       label: "Route truth",
       value: "Resolved by the plugin",
-      copy: "The frontend asks PressBridge what a path means instead of guessing WordPress routing."
+      copy: "The frontend asks Lenviqa what a path means instead of guessing WordPress routing."
     },
     {
       label: "Preview flow",
@@ -71,7 +71,7 @@ const STARTER_HOME = {
     },
     {
       step: "2",
-      title: "PressBridge resolves routes",
+      title: "Lenviqa resolves routes",
       copy: "The plugin normalizes route data and preview payloads for the frontend."
     },
     {
@@ -303,7 +303,7 @@ function getPageSpotlightCopy(page) {
   const copyBySlug = {
     "test-page": "A sample Gutenberg-heavy route that is useful for checking how the starter translates WordPress content into React.",
     "sample-page": "A simple WordPress page rendered through the starter so you can see route resolution and content rendering in action.",
-    about: "An example of a normal WordPress page presented through the PressBridge frontend layer.",
+    about: "An example of a normal WordPress page presented through the Lenviqa frontend layer.",
     blog: "A publishing section that can grow from starter content into a proper archive or editorial area."
   };
 
@@ -489,7 +489,7 @@ function Header({ pages, posts, menus, site }) {
         <div className="brand-block">
           <p className="eyebrow">Starter frontend</p>
           <Link className="site-title" to="/">
-            PressBridge
+            Lenviqa
           </Link>
           <p className="site-description">{SITE_TAGLINE}</p>
         </div>
@@ -561,10 +561,10 @@ function Footer({ site, menus, pages, posts }) {
   return (
     <footer className="site-footer-shell">
       <div className="footer-column">
-        <p className="eyebrow">PressBridge</p>
+        <p className="eyebrow">Lenviqa</p>
         <h2>A reusable WordPress-to-React starter.</h2>
         <p>
-          WordPress still manages content, menus, previews, and permalink truth. PressBridge owns
+          WordPress still manages content, menus, previews, and permalink truth. Lenviqa owns
           the bridge layer. React owns the public presentation.
         </p>
       </div>
@@ -711,7 +711,7 @@ function CapabilityGrid() {
       <div className="section-heading">
         <h2>What the starter is here to prove.</h2>
         <p className="lede">
-          PressBridge is not a full theme replacement. It is a bridge layer and a starter frontend
+          Lenviqa is not a full theme replacement. It is a bridge layer and a starter frontend
           that make a modern WordPress-to-React setup more practical.
         </p>
       </div>
@@ -728,7 +728,7 @@ function CapabilityGrid() {
   );
 }
 
-function WhyPressBridge() {
+function WhyLenviqa() {
   return (
     <section className="content-card content-card--open story-card story-card-feature">
       <p className="eyebrow">Why it exists</p>
@@ -740,7 +740,7 @@ function WhyPressBridge() {
             frontend assumptions that fight WordPress instead of respecting it.
           </p>
           <p className="inline-note">
-            PressBridge keeps the editorial backend strong and puts the bridge concerns in the
+            Lenviqa keeps the editorial backend strong and puts the bridge concerns in the
             plugin so the frontend can stay focused on presentation and product work.
           </p>
         </div>
@@ -771,7 +771,7 @@ function WorkflowOverview({ site, pages, posts }) {
       <p className="eyebrow">How it works</p>
       <div className="split-heading">
         <div>
-          <h2>WordPress, PressBridge, and React each keep a clear job.</h2>
+          <h2>WordPress, Lenviqa, and React each keep a clear job.</h2>
           <p className="lede">
             The frontend does not need to guess WordPress routes, and WordPress does not need to
             become a React app. The bridge layer keeps those responsibilities clean.
@@ -860,7 +860,7 @@ function LatestContentSection({ route, posts = [] }) {
             </h3>
             <p>
               {item.excerpt ||
-                "Published in WordPress and delivered through the PressBridge frontend layer."}
+                "Published in WordPress and delivered through the Lenviqa frontend layer."}
             </p>
           </article>
         ))}
@@ -897,7 +897,7 @@ function BridgeStatus({ site, pages, posts }) {
         <article className="archive-card">
           <p className="eyebrow">Route coverage</p>
           <h3>{pages.length} pages available</h3>
-          <p>Use the route explorer above to verify how WordPress paths resolve through PressBridge.</p>
+          <p>Use the route explorer above to verify how WordPress paths resolve through Lenviqa.</p>
         </article>
         <article className="archive-card">
           <p className="eyebrow">Publishing</p>
@@ -932,8 +932,8 @@ function CompatibilityNotice({ content }) {
       </h2>
       <p className="lede">
         {isWoo
-          ? "PressBridge is rendering server-side WooCommerce output for this route so the starter can keep working without pretending WooCommerce is a normal starter-level content type."
-          : "PressBridge is rendering server-side HTML for this route because block translation is not the right fit for the content it contains."}
+          ? "Lenviqa is rendering server-side WooCommerce output for this route so the starter can keep working without pretending WooCommerce is a normal starter-level content type."
+          : "Lenviqa is rendering server-side HTML for this route because block translation is not the right fit for the content it contains."}
       </p>
       <div className="status-chip-row">
         <span className="status-chip">Render mode: {content?.render_mode || "html"}</span>
@@ -1048,7 +1048,7 @@ function FailureState({ message }) {
       <p className="lede">{message}</p>
       <ul className="stack-list">
         <li>Confirm WordPress is running and reachable from this frontend.</li>
-        <li>Confirm the PressBridge plugin is active and the custom REST routes are available.</li>
+        <li>Confirm the Lenviqa plugin is active and the custom REST routes are available.</li>
         <li>Confirm the frontend API base matches the WordPress site you want to render.</li>
       </ul>
     </section>
@@ -1060,7 +1060,7 @@ function HomeExperience({ site, route, pages, posts }) {
     <>
       <HeroSection site={site} pages={pages} posts={posts} />
       <CapabilityGrid />
-      <WhyPressBridge />
+      <WhyLenviqa />
       <WorkflowOverview site={site} pages={pages} posts={posts} />
       <RouteExamples pages={pages} />
       <LatestContentSection route={route} posts={posts} />

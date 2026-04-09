@@ -1,15 +1,15 @@
-# PressBridge Current Feature Status
+# Lenviqa Current Feature Status
 
-This document is the current product snapshot for PressBridge core. It is meant to answer four questions quickly:
+This document is the current product snapshot for Lenviqa core. It is meant to answer four questions quickly:
 
-- what PressBridge can do today
+- what Lenviqa can do today
 - what changed recently
 - where the core roadmap currently stands
 - what should happen next before premium becomes the main story
 
 ## Product summary
 
-PressBridge is a WordPress plugin that connects WordPress to modern frontends.
+Lenviqa is a WordPress plugin that connects WordPress to modern frontends.
 
 The current product model is:
 
@@ -17,9 +17,9 @@ The current product model is:
 - the plugin owns the bridge layer
 - React owns the public presentation layer
 
-PressBridge is currently in a real alpha. It is beyond prototype, but it is not yet production-ready core.
+Lenviqa is currently in a real alpha. It is beyond prototype, but it is not yet production-ready core.
 
-## What PressBridge core can do today
+## What Lenviqa core can do today
 
 ### Bridge and routing
 
@@ -46,7 +46,7 @@ PressBridge is currently in a real alpha. It is beyond prototype, but it is not 
 - ship a generic Vite React starter in `frontend-app`
 - ship a lightweight no-build smoke frontend in `frontend-lite`
 - export a starter frontend from the plugin under `assets/starter`
-- render common WordPress content through a generic PressBridge starter shell
+- render common WordPress content through a generic Lenviqa starter shell
 - handle loading, empty, preview, and failure states in a product-facing way
 
 ### Content rendering
@@ -92,7 +92,7 @@ This is the practical changelog state reflected in the repo right now.
 
 #### `4c899a3` Split starter from personal site and frame Woo compatibility
 
-- restored the shipped starter to a generic PressBridge frontend
+- restored the shipped starter to a generic Lenviqa frontend
 - removed the personal-site drift from the main starter
 - rebuilt `frontend-lite` into a valid smoke frontend again
 - framed WooCommerce as advanced compatibility rather than a default promise
@@ -119,7 +119,7 @@ This is the practical changelog state reflected in the repo right now.
 
 ## Current roadmap position
 
-PressBridge core is currently between:
+Lenviqa core is currently between:
 
 - core alpha with real working bridge behavior
 - and beta-ready core with clearer guarantees
@@ -180,4 +180,4 @@ The current premium direction is:
 
 ## Current status in one line
 
-PressBridge core is now a credible alpha bridge product with a generic starter and working preview, routing, and handoff behavior, but it still needs beta-level hardening before premium compatibility layers should become the main focus.
+Lenviqa core is now a credible alpha bridge product with a generic starter and working preview, routing, and handoff behavior, but it still needs beta-level hardening before premium compatibility layers should become the main focus.

@@ -1,4 +1,4 @@
-# PressBridge Starter
+# Lenviqa Starter
 
 This starter was exported from the `__WTR_PLUGIN_NAME__` WordPress site.
 

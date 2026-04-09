@@ -1,4 +1,4 @@
-# PressBridge Lite Frontend
+# Lenviqa Lite Frontend
 
 This is a no-build React smoke-test frontend for the Local WordPress site.
 

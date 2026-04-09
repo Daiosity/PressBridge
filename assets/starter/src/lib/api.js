@@ -10,7 +10,7 @@ const loadedConfig = runtimeConfig["../config/wp-config.json"]?.default || {};
 const API_BASE =
   (import.meta.env.VITE_WTR_API_BASE || loadedConfig.apiBase || "__WTR_API_BASE__").replace(/\/$/, "");
 
-const CACHE_PREFIX = "pressbridge:";
+const CACHE_PREFIX = "Lenviqa:";
 const memoryCache = new Map();
 const SESSION_ROUTE_PATTERNS = [/^\/cart\/?$/i, /^\/checkout\/?$/i, /^\/my-account\/?$/i];
 
@@ -110,7 +110,7 @@ async function apiFetch(path) {
     });
   } catch (networkError) {
     throw new Error(
-      "Unable to reach the PressBridge API. Confirm WordPress is running, the plugin is active, and the API base URL is correct."
+      "Unable to reach the Lenviqa API. Confirm WordPress is running, the plugin is active, and the API base URL is correct."
     );
   }
 
@@ -132,7 +132,7 @@ async function apiFetch(path) {
   try {
     return await response.json();
   } catch (parseError) {
-    const error = new Error("The PressBridge API returned an invalid JSON response.");
+    const error = new Error("The Lenviqa API returned an invalid JSON response.");
     error.status = response.status;
     throw error;
   }

@@ -1,6 +1,6 @@
 # First-Time Onboarding
 
-This is the shortest reliable path for a developer using PressBridge for the first time in the Local test setup.
+This is the shortest reliable path for a developer using Lenviqa for the first time in the Local test setup.
 
 ## Assumptions
 
@@ -16,9 +16,9 @@ This is the shortest reliable path for a developer using PressBridge for the fir
 powershell -ExecutionPolicy Bypass -File .\scripts\build-plugin.ps1
 ```
 
-2. In WordPress admin, install the built `build/pressbridge-{version}.zip` file through `Plugins > Add New > Upload Plugin`.
-3. Activate `PressBridge`.
-4. Open `Settings > PressBridge`.
+2. In WordPress admin, install the built `build/lenviqa-{version}.zip` file through `Plugins > Add New > Upload Plugin`.
+3. Activate `Lenviqa`.
+4. Open `Settings > Lenviqa`.
 5. Set `Frontend app URL` to `http://localhost:5173`.
 6. Leave route handling on `Keep WordPress rendering public pages`.
 7. Start the Vite frontend:
@@ -56,5 +56,5 @@ npm run dev
 ## What Should Not Be Assumed
 
 - that redirect mode is safe before preview is checked
-- that `pressbridge.local` is still the local hostname
+- that `Lenviqa.local` is still the local hostname
 - that the exported starter is required for local repo development

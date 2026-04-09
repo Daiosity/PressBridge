@@ -1,12 +1,12 @@
 <?php
 /**
- * Seed intentionally messy Gutenberg scenario pages into the Local PressBridge site.
+ * Seed intentionally messy Gutenberg scenario pages into the Local Lenviqa site.
  *
  * The script writes directly to the Local database so it stays reliable even when
  * the CLI runtime does not bootstrap WordPress the same way the Local web stack does.
  */
 
-function pressbridge_scenario_image_uri( $title, $accent = '#3b82f6', $background = '#eef4ff', $background_alt = '#dbeafe' ) {
+function Lenviqa_scenario_image_uri( $title, $accent = '#3b82f6', $background = '#eef4ff', $background_alt = '#dbeafe' ) {
 	$title      = htmlspecialchars( $title, ENT_QUOTES );
 	$accent     = htmlspecialchars( $accent, ENT_QUOTES );
 	$background = htmlspecialchars( $background, ENT_QUOTES );
@@ -98,7 +98,7 @@ HTML,
 <!-- wp:group {"layout":{"type":"constrained"}} -->
 <div class="wp-block-group"><!-- wp:media-text {"mediaPosition":"right","mediaWidth":42,"isStackedOnMobile":true} -->
 <div class="wp-block-media-text has-media-on-the-right is-stacked-on-mobile" style="grid-template-columns:auto 42%"><figure class="wp-block-media-text__media"><img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80" alt="Laptop with code editor"/></figure><div class="wp-block-media-text__content"><!-- wp:paragraph -->
-<p>This media-text block keeps its real content in the saved markup. If parsed inner blocks are sparse, PressBridge should still keep the media and copy relationship intact.</p>
+<p>This media-text block keeps its real content in the saved markup. If parsed inner blocks are sparse, Lenviqa should still keep the media and copy relationship intact.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:buttons {"layout":{"type":"flex","orientation":"vertical","justifyContent":"center"}} -->
@@ -154,7 +154,7 @@ HTML,
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>This gallery intentionally uses saved HTML without nested image block comments. PressBridge should still recover a stable grid instead of collapsing into raw markup.</p>
+<p>This gallery intentionally uses saved HTML without nested image block comments. Lenviqa should still recover a stable grid instead of collapsing into raw markup.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:gallery {"columns":3,"linkTo":"none"} -->
@@ -181,7 +181,7 @@ HTML,
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>This page intentionally stacks several common Gutenberg patterns together so PressBridge can prove it preserves layout intent.</p>
+<p>This page intentionally stacks several common Gutenberg patterns together so Lenviqa can prove it preserves layout intent.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:buttons {"layout":{"type":"flex","justifyContent":"space-between"}} -->
@@ -212,13 +212,13 @@ HTML,
 );
 
 $image_map = array(
-	'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1200&q=80' => pressbridge_scenario_image_uri( 'Nested Columns', '#2563eb', '#eff6ff', '#dbeafe' ),
-	'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80' => pressbridge_scenario_image_uri( 'Media Text', '#7c3aed', '#f5f3ff', '#ede9fe' ),
-	'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1400&q=80' => pressbridge_scenario_image_uri( 'Cover CTA', '#0f766e', '#ecfeff', '#cffafe' ),
-	'https://images.unsplash.com/photo-1515879218367-8466d9108023?auto=format&fit=crop&w=900&q=80'  => pressbridge_scenario_image_uri( 'Gallery One', '#ea580c', '#fff7ed', '#fed7aa' ),
-	'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=900&q=80'  => pressbridge_scenario_image_uri( 'Gallery Two', '#0891b2', '#ecfeff', '#bae6fd' ),
-	'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=80'   => pressbridge_scenario_image_uri( 'Gallery Three', '#9333ea', '#faf5ff', '#e9d5ff' ),
-	'https://images.unsplash.com/photo-1516321310764-8d3d0e1c7b2f?auto=format&fit=crop&w=1000&q=80'  => pressbridge_scenario_image_uri( 'Mixed Layout', '#1d4ed8', '#eff6ff', '#bfdbfe' ),
+	'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1200&q=80' => Lenviqa_scenario_image_uri( 'Nested Columns', '#2563eb', '#eff6ff', '#dbeafe' ),
+	'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80' => Lenviqa_scenario_image_uri( 'Media Text', '#7c3aed', '#f5f3ff', '#ede9fe' ),
+	'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1400&q=80' => Lenviqa_scenario_image_uri( 'Cover CTA', '#0f766e', '#ecfeff', '#cffafe' ),
+	'https://images.unsplash.com/photo-1515879218367-8466d9108023?auto=format&fit=crop&w=900&q=80'  => Lenviqa_scenario_image_uri( 'Gallery One', '#ea580c', '#fff7ed', '#fed7aa' ),
+	'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=900&q=80'  => Lenviqa_scenario_image_uri( 'Gallery Two', '#0891b2', '#ecfeff', '#bae6fd' ),
+	'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=80'   => Lenviqa_scenario_image_uri( 'Gallery Three', '#9333ea', '#faf5ff', '#e9d5ff' ),
+	'https://images.unsplash.com/photo-1516321310764-8d3d0e1c7b2f?auto=format&fit=crop&w=1000&q=80'  => Lenviqa_scenario_image_uri( 'Mixed Layout', '#1d4ed8', '#eff6ff', '#bfdbfe' ),
 );
 
 foreach ( $pages as &$page ) {
@@ -226,7 +226,7 @@ foreach ( $pages as &$page ) {
 }
 unset( $page );
 
-function pressbridge_scenario_seed_via_db( array $pages ) {
+function Lenviqa_scenario_seed_via_db( array $pages ) {
 	$sitesFile = getenv( 'APPDATA' ) . '/Local/sites.json';
 
 	if ( ! file_exists( $sitesFile ) ) {
@@ -364,6 +364,6 @@ function pressbridge_scenario_seed_via_db( array $pages ) {
 	);
 }
 
-$results = pressbridge_scenario_seed_via_db( $pages );
+$results = Lenviqa_scenario_seed_via_db( $pages );
 
 echo json_encode( $results, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . "\n";

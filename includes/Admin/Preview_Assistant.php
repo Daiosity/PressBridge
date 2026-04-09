@@ -98,7 +98,7 @@ class Preview_Assistant {
 
 		printf(
 			'<div class="notice notice-warning"><p>%1$s</p><p><a href="%2$s">%3$s</a></p></div>',
-			esc_html__( 'PressBridge is active for this content type, but frontend previews are inactive until a valid frontend app URL is configured.', 'pressbridge' ),
+			esc_html__( 'Lenviqa is active for this content type, but frontend previews are inactive until a valid frontend app URL is configured.', 'pressbridge' ),
 			esc_url( $settings_url ),
 			esc_html__( 'Add the frontend app URL', 'pressbridge' )
 		);
@@ -198,7 +198,7 @@ class Preview_Assistant {
 		return array(
 			'enabled'    => true,
 			'heading'    => __( 'Frontend preview needs setup', 'pressbridge' ),
-			'message'    => __( 'PressBridge is active for this content type, but frontend previews stay inactive until a valid frontend app URL is configured.', 'pressbridge' ),
+			'message'    => __( 'Lenviqa is active for this content type, but frontend previews stay inactive until a valid frontend app URL is configured.', 'pressbridge' ),
 			'secondary'  => __( 'Add your local or deployed React URL in the plugin settings, then use Preview again.', 'pressbridge' ),
 			'linkUrl'    => $settings_url,
 			'linkLabel'  => __( 'Add the frontend app URL', 'pressbridge' ),

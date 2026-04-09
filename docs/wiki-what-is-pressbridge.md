@@ -1,14 +1,14 @@
-# What Is PressBridge
+# What Is Lenviqa
 
-PressBridge is a WordPress plugin and starter frontend setup for teams that want WordPress as the CMS and React as the public frontend.
+Lenviqa is a WordPress plugin and starter frontend setup for teams that want WordPress as the CMS and React as the public frontend.
 
 The product model is:
 
 - WordPress stays responsible for content, menus, previews, and permalink truth
-- PressBridge owns the bridge layer
+- Lenviqa owns the bridge layer
 - React owns the public presentation layer
 
-PressBridge exists to reduce the repeated setup work that normally appears when teams build their own WordPress-to-React bridge:
+Lenviqa exists to reduce the repeated setup work that normally appears when teams build their own WordPress-to-React bridge:
 
 - route resolution
 - preview handling

@@ -76,9 +76,9 @@ class Starter_Export {
 		}
 
 		$template_dir = WTR_PLUGIN_DIR . 'assets/starter';
-		$temp_file    = wp_tempnam( 'pressbridge-starter.zip' );
+		$temp_file    = wp_tempnam( 'lenviqa-starter.zip' );
 		$zip          = new ZipArchive();
-		$filename     = 'pressbridge-starter-' . gmdate( 'Ymd-His' ) . '.zip';
+		$filename     = 'lenviqa-starter-' . gmdate( 'Ymd-His' ) . '.zip';
 
 		if ( empty( $temp_file ) ) {
 			wp_die( esc_html__( 'Unable to create a temporary file for the starter export.', 'pressbridge' ) );

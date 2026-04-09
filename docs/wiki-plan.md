@@ -1,13 +1,13 @@
 # Wiki Plan
 
-This is a practical GitHub wiki structure for PressBridge.
+This is a practical GitHub wiki structure for Lenviqa.
 
 It is meant to help developers evaluate and adopt the product without widening the promise beyond the current beta scope.
 
-## 1. What Is PressBridge
+## 1. What Is Lenviqa
 
 - short product definition
-- WordPress -> PressBridge -> React model
+- WordPress -> Lenviqa -> React model
 - who it is for
 - who it is not for
 
@@ -19,7 +19,7 @@ It is meant to help developers evaluate and adopt the product without widening t
 - verify route resolution
 - test preview locally
 
-## 3. How PressBridge Works
+## 3. How Lenviqa Works
 
 - route resolution model
 - preview token model
@@ -58,11 +58,11 @@ It is meant to help developers evaluate and adopt the product without widening t
 
 ## Suggested Order Of Creation
 
-1. What Is PressBridge
+1. What Is Lenviqa
 2. Quick Start
 3. Supported Beta Scope
 4. Validation And Scenario Guardrails
-5. How PressBridge Works
+5. How Lenviqa Works
 6. Limitations And Non-Goals
 7. Extending Or Customizing Later
 

@@ -1,8 +1,8 @@
 # Gutenberg Scenario Matrix
 
-These Local pages form the permanent core Gutenberg rendering test set for PressBridge.
+These Local pages form the permanent core Gutenberg rendering test set for Lenviqa.
 
-They are intentionally messy. They are not theme-fidelity tests. They exist to prove that PressBridge preserves layout intent, uses safe fallback behavior, and avoids obvious structural breakage on common Gutenberg patterns.
+They are intentionally messy. They are not theme-fidelity tests. They exist to prove that Lenviqa preserves layout intent, uses safe fallback behavior, and avoids obvious structural breakage on common Gutenberg patterns.
 
 ## Scenario 1: Nested Layout
 
@@ -44,7 +44,7 @@ They are intentionally messy. They are not theme-fidelity tests. They exist to p
   - gallery saved primarily as HTML
   - incomplete parsed nested image block structure
 - Proves:
-  - PressBridge can recover a stable gallery grid from saved HTML
+  - Lenviqa can recover a stable gallery grid from saved HTML
   - the renderer does not need perfect parsed image blocks to avoid raw-markup failure
 
 ## Scenario 5: Mixed Layout Stack

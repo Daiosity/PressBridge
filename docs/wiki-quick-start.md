@@ -1,8 +1,8 @@
 # Quick Start
 
-1. Build or install the PressBridge plugin ZIP.
+1. Build or install the Lenviqa plugin ZIP.
 2. Activate the plugin in WordPress.
-3. Open `Settings > PressBridge`.
+3. Open `Settings > Lenviqa`.
 4. Set the frontend URL to `http://localhost:5173`.
 5. Run the local frontend.
 
@@ -41,6 +41,6 @@ powershell -ExecutionPolicy Bypass -File .\scripts\validate-core.ps1 -FrontendBa
 
 Next:
 
-- [What Is PressBridge](wiki-what-is-pressbridge.md)
+- [What Is Lenviqa](wiki-what-is-pressbridge.md)
 - [Supported Beta Scope](wiki-supported-beta-scope.md)
 - [Limitations and Non-Goals](wiki-limitations-and-non-goals.md)

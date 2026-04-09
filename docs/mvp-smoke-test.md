@@ -1,4 +1,4 @@
-# PressBridge MVP Smoke Test
+# Lenviqa MVP Smoke Test
 
 Use this checklist when validating the plugin inside a real WordPress install.
 
@@ -6,7 +6,7 @@ Use this checklist when validating the plugin inside a real WordPress install.
 
 1. Install and activate the plugin.
 2. If testing the distributable, install from the generated ZIP rather than copying the source folder manually.
-3. Visit `Settings > PressBridge`.
+3. Visit `Settings > Lenviqa`.
 4. Save a frontend URL such as `http://localhost:5173`.
 5. Confirm the Connection Status panel updates as expected.
 6. If using the repo's Local site, confirm `http://wp-to-react.local` is running before frontend checks.

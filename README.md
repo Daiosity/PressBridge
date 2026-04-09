@@ -1,6 +1,6 @@
-# PressBridge
+# Lenviqa
 
-PressBridge helps developers use WordPress as a CMS while React handles the public frontend.
+Lenviqa helps developers use WordPress as a CMS while React handles the public frontend.
 
 It is a WordPress plugin plus starter frontends with validated support for:
 
@@ -13,7 +13,7 @@ This repo is for developers evaluating a practical WordPress-to-React bridge, no
 
 ## Beta Status
 
-PressBridge is currently released as a beta core.
+Lenviqa is currently released as a beta core.
 
 That means the current public promise is limited to the validated core scope:
 
@@ -39,16 +39,16 @@ Rolling your own headless WordPress bridge usually means re-solving the same pro
 - unclear fallback behavior when content gets messy
 - more packaging and setup drift across projects
 
-PressBridge takes a narrower approach:
+Lenviqa takes a narrower approach:
 
 - WordPress stays the CMS
-- PressBridge owns the bridge layer
+- Lenviqa owns the bridge layer
 - React owns the public presentation layer
 
 ```text
 WordPress (CMS + editorial backend)
   ->
-PressBridge (route + preview + bridge layer)
+Lenviqa (route + preview + bridge layer)
   ->
 React frontend (public presentation)
 ```
@@ -64,7 +64,7 @@ Caption:
 
 ### A starter frontend is included so you are not beginning from a blank bridge.
 
-![PressBridge starter homepage](docs/assets/screenshots/starter-home.png)
+![Lenviqa starter homepage](docs/assets/screenshots/starter-home.png)
 
 Caption:
 - A starter frontend is included so you are not beginning from a blank bridge.
@@ -132,7 +132,7 @@ In practical terms, core currently handles:
 
 ## What Core Does Not Promise
 
-PressBridge core does not currently promise:
+Lenviqa core does not currently promise:
 
 - WooCommerce as a solved core feature
 - ACF integration
@@ -148,8 +148,8 @@ Those boundaries are intentional. The current promise is stable bridge behavior,
 ## Quick Start
 
 1. Build or install the plugin ZIP.
-2. Activate PressBridge in WordPress.
-3. Open `Settings > PressBridge`.
+2. Activate Lenviqa in WordPress.
+3. Open `Settings > Lenviqa`.
 4. Set the frontend URL to `http://localhost:5173`.
 5. Run the main starter:
 
@@ -194,7 +194,7 @@ python server.py
 - [First-time onboarding](docs/first-time-onboarding.md)
 - [Local development](docs/local-dev.md)
 - [Wiki plan](docs/wiki-plan.md)
-- [Wiki: What is PressBridge](docs/wiki-what-is-pressbridge.md)
+- [Wiki: What is Lenviqa](docs/wiki-what-is-pressbridge.md)
 - [Wiki: Quick start](docs/wiki-quick-start.md)
 - [Wiki: Supported beta scope](docs/wiki-supported-beta-scope.md)
 - [Wiki: Limitations and non-goals](docs/wiki-limitations-and-non-goals.md)

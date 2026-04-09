@@ -1,12 +1,12 @@
 <?php
 /**
- * Seed screenshot-ready demo content into the Local PressBridge site.
+ * Seed screenshot-ready demo content into the Local Lenviqa site.
  *
  * This creates a small set of clean demo pages and a demo post for repo screenshots.
  * It also seeds a preview revision + token for the demo preview route.
  */
 
-function pressbridge_demo_connect_local_db() {
+function Lenviqa_demo_connect_local_db() {
 	$sites_file = getenv( 'APPDATA' ) . '/Local/sites.json';
 
 	if ( ! file_exists( $sites_file ) ) {
@@ -56,7 +56,7 @@ function pressbridge_demo_connect_local_db() {
 	return $mysqli;
 }
 
-function pressbridge_demo_get_home_url( mysqli $mysqli ) {
+function Lenviqa_demo_get_home_url( mysqli $mysqli ) {
 	$result   = $mysqli->query( "SELECT option_value FROM wp_options WHERE option_name = 'home' LIMIT 1" );
 	$home_url = 'http://wp-to-react.local';
 
@@ -71,7 +71,7 @@ function pressbridge_demo_get_home_url( mysqli $mysqli ) {
 	return $home_url;
 }
 
-function pressbridge_demo_image_uri( $title, $accent = '#2563eb', $background = '#eef4ff', $background_alt = '#dbeafe', $show_title = true ) {
+function Lenviqa_demo_image_uri( $title, $accent = '#2563eb', $background = '#eef4ff', $background_alt = '#dbeafe', $show_title = true ) {
 	$title          = htmlspecialchars( $title, ENT_QUOTES );
 	$accent         = htmlspecialchars( $accent, ENT_QUOTES );
 	$background     = htmlspecialchars( $background, ENT_QUOTES );
@@ -113,7 +113,7 @@ SVG;
 	return 'data:image/svg+xml;utf8,' . rawurlencode( $svg );
 }
 
-function pressbridge_demo_upsert_content( mysqli $mysqli, array $item, $home_url ) {
+function Lenviqa_demo_upsert_content( mysqli $mysqli, array $item, $home_url ) {
 	$post_type   = $item['post_type'];
 	$post_name   = $item['post_name'];
 	$post_title  = $item['post_title'];
@@ -202,7 +202,7 @@ function pressbridge_demo_upsert_content( mysqli $mysqli, array $item, $home_url
 	return $post_id;
 }
 
-function pressbridge_demo_upsert_revision( mysqli $mysqli, $post_id, $title, $content, $guid ) {
+function Lenviqa_demo_upsert_revision( mysqli $mysqli, $post_id, $title, $content, $guid ) {
 	$select_stmt = $mysqli->prepare( "SELECT ID FROM wp_posts WHERE post_type = 'revision' AND post_parent = ? AND post_name = ? LIMIT 1" );
 	$insert_stmt = $mysqli->prepare(
 		"INSERT INTO wp_posts (
@@ -257,7 +257,7 @@ function pressbridge_demo_upsert_revision( mysqli $mysqli, $post_id, $title, $co
 	return $revision_id;
 }
 
-function pressbridge_demo_upsert_transient( mysqli $mysqli, $token, array $payload, $expires_at ) {
+function Lenviqa_demo_upsert_transient( mysqli $mysqli, $token, array $payload, $expires_at ) {
 	$key_hash      = md5( $token );
 	$value_name    = '_transient_wtr_preview_' . $key_hash;
 	$timeout_name  = '_transient_timeout_wtr_preview_' . $key_hash;
@@ -278,18 +278,18 @@ function pressbridge_demo_upsert_transient( mysqli $mysqli, $token, array $paylo
 	$stmt->close();
 }
 
-$mysqli   = pressbridge_demo_connect_local_db();
-$home_url = pressbridge_demo_get_home_url( $mysqli );
+$mysqli   = Lenviqa_demo_connect_local_db();
+$home_url = Lenviqa_demo_get_home_url( $mysqli );
 
-$layout_image = pressbridge_demo_image_uri( 'Content + Layout', '#2563eb', '#eff6ff', '#dbeafe', false );
-$cover_image  = pressbridge_demo_image_uri( 'Preview + Routing', '#0f766e', '#d9f3f1', '#b7e7e3', false );
-$media_image  = pressbridge_demo_image_uri( 'Editorial Flow', '#7c3aed', '#f5f3ff', '#ede9fe', false );
+$layout_image = Lenviqa_demo_image_uri( 'Content + Layout', '#2563eb', '#eff6ff', '#dbeafe', false );
+$cover_image  = Lenviqa_demo_image_uri( 'Preview + Routing', '#0f766e', '#d9f3f1', '#b7e7e3', false );
+$media_image  = Lenviqa_demo_image_uri( 'Editorial Flow', '#7c3aed', '#f5f3ff', '#ede9fe', false );
 
 $demo_layout_content = strtr(
 	<<<'HTML'
 <!-- wp:group {"layout":{"type":"constrained"},"style":{"spacing":{"blockGap":"32px"}}} -->
 <div class="wp-block-group"><!-- wp:cover {"url":"__COVER__","dimRatio":78,"overlayColor":"contrast","minHeight":320,"isDark":true} -->
-<div class="wp-block-cover is-dark" style="min-height:320px"><span aria-hidden="true" class="wp-block-cover__background has-contrast-background-color has-background-dim"></span><img class="wp-block-cover__image-background" alt="PressBridge cover example" src="__COVER__" data-object-fit="cover"/><div class="wp-block-cover__inner-container"><!-- wp:heading {"level":1} -->
+<div class="wp-block-cover is-dark" style="min-height:320px"><span aria-hidden="true" class="wp-block-cover__background has-contrast-background-color has-background-dim"></span><img class="wp-block-cover__image-background" alt="Lenviqa cover example" src="__COVER__" data-object-fit="cover"/><div class="wp-block-cover__inner-container"><!-- wp:heading {"level":1} -->
 <h1 class="wp-block-heading">A readable Gutenberg layout carried into React</h1>
 <!-- /wp:heading -->
 
@@ -303,7 +303,7 @@ $demo_layout_content = strtr(
 <!-- /wp:button -->
 
 <!-- wp:button {"className":"is-style-outline"} -->
-<div class="wp-block-button is-style-outline"><a class="wp-block-button__link wp-element-button" href="/pressbridge-demo-post/">Read the demo post</a></div>
+<div class="wp-block-button is-style-outline"><a class="wp-block-button__link wp-element-button" href="/lenviqa-demo-post/">Read the demo post</a></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons --></div></div>
 <!-- /wp:cover -->
@@ -322,7 +322,7 @@ $demo_layout_content = strtr(
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>PressBridge keeps the structure, hierarchy, and editorial meaning of the WordPress content while letting React own the public presentation layer.</p>
+<p>Lenviqa keeps the structure, hierarchy, and editorial meaning of the WordPress content while letting React own the public presentation layer.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:group {"layout":{"type":"constrained"}} -->
@@ -395,11 +395,11 @@ $simple_page_content = <<<'HTML'
 <!-- /wp:group -->
 HTML;
 
-$parent_page_id = pressbridge_demo_upsert_content(
+$parent_page_id = Lenviqa_demo_upsert_content(
 	$mysqli,
 	array(
 		'post_type'    => 'page',
-		'post_title'   => 'PressBridge Guides',
+		'post_title'   => 'Lenviqa Guides',
 		'post_name'    => 'pb-demo-guides',
 		'post_excerpt' => 'Parent page for the nested route demo.',
 		'post_status'  => 'publish',
@@ -412,7 +412,7 @@ $parent_page_id = pressbridge_demo_upsert_content(
 $demo_pages = array(
 	'layout' => array(
 		'post_type'    => 'page',
-		'post_title'   => 'PressBridge Layout Demo',
+		'post_title'   => 'Lenviqa Layout Demo',
 		'post_name'    => 'pb-demo-layout',
 		'post_excerpt' => 'Clean Gutenberg layout example for screenshots.',
 		'post_status'  => 'publish',
@@ -421,7 +421,7 @@ $demo_pages = array(
 	),
 	'preview' => array(
 		'post_type'    => 'page',
-		'post_title'   => 'PressBridge Preview Demo',
+		'post_title'   => 'Lenviqa Preview Demo',
 		'post_name'    => 'pb-demo-preview',
 		'post_excerpt' => 'Published source page for the preview screenshot.',
 		'post_status'  => 'publish',
@@ -430,7 +430,7 @@ $demo_pages = array(
 	),
 	'nested-child' => array(
 		'post_type'    => 'page',
-		'post_title'   => 'Getting Started with PressBridge',
+		'post_title'   => 'Getting Started with Lenviqa',
 		'post_name'    => 'getting-started',
 		'post_excerpt' => 'Nested route demo page.',
 		'post_status'  => 'publish',
@@ -440,7 +440,7 @@ $demo_pages = array(
 	),
 	'simple-page' => array(
 		'post_type'    => 'page',
-		'post_title'   => 'PressBridge Simple Page',
+		'post_title'   => 'Lenviqa Simple Page',
 		'post_name'    => 'pb-demo-simple-page',
 		'post_excerpt' => 'Simple baseline page for screenshots.',
 		'post_status'  => 'publish',
@@ -455,7 +455,7 @@ $created = array(
 );
 
 foreach ( $demo_pages as $key => $page ) {
-	$post_id = pressbridge_demo_upsert_content( $mysqli, $page, $home_url );
+	$post_id = Lenviqa_demo_upsert_content( $mysqli, $page, $home_url );
 	$created['pages'][ $key ] = array(
 		'id'         => $post_id,
 		'title'      => $page['post_title'],
@@ -465,16 +465,16 @@ foreach ( $demo_pages as $key => $page ) {
 	);
 }
 
-$post_id = pressbridge_demo_upsert_content(
+$post_id = Lenviqa_demo_upsert_content(
 	$mysqli,
 	array(
 		'post_type'    => 'post',
 		'post_title'   => 'Shipping a React Frontend from WordPress',
-		'post_name'    => 'pressbridge-demo-post',
+		'post_name'    => 'lenviqa-demo-post',
 		'post_excerpt' => 'Simple post example for baseline route screenshots.',
 		'post_status'  => 'publish',
-		'post_content' => '<p>This demo post exists so the repo can show a simple post route rendered through the PressBridge starter.</p><p>It is intentionally light on structure so the screenshot reads as a normal content route instead of another special demo page.</p>',
-		'path'         => 'pressbridge-demo-post/',
+		'post_content' => '<p>This demo post exists so the repo can show a simple post route rendered through the Lenviqa starter.</p><p>It is intentionally light on structure so the screenshot reads as a normal content route instead of another special demo page.</p>',
+		'path'         => 'lenviqa-demo-post/',
 	),
 	$home_url
 );
@@ -482,21 +482,21 @@ $post_id = pressbridge_demo_upsert_content(
 $created['posts']['simple-post'] = array(
 	'id'         => $post_id,
 		'title'      => 'Shipping a React Frontend from WordPress',
-		'path'       => '/pressbridge-demo-post/',
-		'public_url' => $home_url . '/pressbridge-demo-post/',
+		'path'       => '/lenviqa-demo-post/',
+		'public_url' => $home_url . '/lenviqa-demo-post/',
 		'edit_url'   => $home_url . '/wp-admin/post.php?post=' . $post_id . '&action=edit',
 );
 
 $preview_token = 'pbdemopreviewtoken001';
-$revision_id   = pressbridge_demo_upsert_revision(
+$revision_id   = Lenviqa_demo_upsert_revision(
 	$mysqli,
 	$created['pages']['preview']['id'],
-	'PressBridge Preview Demo Draft',
+	'Lenviqa Preview Demo Draft',
 	$preview_revision_content,
 	$home_url . '/?p=' . $created['pages']['preview']['id'] . '&preview=true'
 );
 
-pressbridge_demo_upsert_transient(
+Lenviqa_demo_upsert_transient(
 	$mysqli,
 	$preview_token,
 	array(
@@ -513,7 +513,7 @@ $created['preview'] = array(
 		'published_public_url'  => $created['pages']['preview']['public_url'],
 		'frontend_preview_url'  => 'http://localhost:5173/pb-demo-preview/?wtr_preview=1&wtr_preview_token=' . $preview_token,
 		'wordpress_edit_url'    => $created['pages']['preview']['edit_url'],
-		'revision_title'        => 'PressBridge Preview Demo Draft',
+		'revision_title'        => 'Lenviqa Preview Demo Draft',
 );
 
 $mysqli->close();

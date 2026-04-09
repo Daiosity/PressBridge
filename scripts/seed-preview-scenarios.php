@@ -1,6 +1,6 @@
 <?php
 /**
- * Seed repeatable preview scenarios into the Local PressBridge site.
+ * Seed repeatable preview scenarios into the Local Lenviqa site.
  *
  * This creates:
  * - a published page used as the canonical preview route
@@ -9,7 +9,7 @@
  * - one expired preview token transient
  */
 
-function pressbridge_preview_connect_local_db() {
+function Lenviqa_preview_connect_local_db() {
 	$sites_file = getenv( 'APPDATA' ) . '/Local/sites.json';
 
 	if ( ! file_exists( $sites_file ) ) {
@@ -59,7 +59,7 @@ function pressbridge_preview_connect_local_db() {
 	return $mysqli;
 }
 
-function pressbridge_preview_get_home_url( mysqli $mysqli ) {
+function Lenviqa_preview_get_home_url( mysqli $mysqli ) {
 	$site_url_result = $mysqli->query( "SELECT option_value FROM wp_options WHERE option_name = 'home' LIMIT 1" );
 	$home_url        = 'http://wp-to-react.local';
 
@@ -74,7 +74,7 @@ function pressbridge_preview_get_home_url( mysqli $mysqli ) {
 	return $home_url;
 }
 
-function pressbridge_preview_upsert_page( mysqli $mysqli, array $page, $home_url ) {
+function Lenviqa_preview_upsert_page( mysqli $mysqli, array $page, $home_url ) {
 	$select_stmt = $mysqli->prepare( "SELECT ID FROM wp_posts WHERE post_type = 'page' AND post_name = ? LIMIT 1" );
 	$insert_stmt = $mysqli->prepare(
 		"INSERT INTO wp_posts (
@@ -136,7 +136,7 @@ function pressbridge_preview_upsert_page( mysqli $mysqli, array $page, $home_url
 	return $post_id;
 }
 
-function pressbridge_preview_upsert_revision( mysqli $mysqli, $post_id ) {
+function Lenviqa_preview_upsert_revision( mysqli $mysqli, $post_id ) {
 	$select_stmt = $mysqli->prepare(
 		"SELECT ID FROM wp_posts WHERE post_type = 'revision' AND post_parent = ? AND post_name = ? LIMIT 1"
 	);
@@ -157,11 +157,11 @@ function pressbridge_preview_upsert_revision( mysqli $mysqli, $post_id ) {
 	);
 
 	$revision_slug    = $post_id . '-autosave-v1';
-	$revision_title   = 'PB Preview Scenario Draft';
-	$revision_content = <<<'HTML'
-<!-- wp:group {"style":{"spacing":{"padding":{"top":"24px","right":"24px","bottom":"24px","left":"24px"},"blockGap":"16px"},"color":{"background":"#eef6ff"}},"layout":{"type":"constrained"}} -->
-<div class="wp-block-group has-background" style="background-color:#eef6ff;padding-top:24px;padding-right:24px;padding-bottom:24px;padding-left:24px"><!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Preview content is coming from the autosave snapshot</h2>
+	$revision_title   = 'Lenviqa Preview Scenario Draft';
+$revision_content = <<<'HTML'
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"24px","right":"24px","bottom":"24px","left":"24px"},"blockGap":"16px"}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group" style="padding-top:24px;padding-right:24px;padding-bottom:24px;padding-left:24px"><!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Preview content is coming from the Lenviqa autosave snapshot</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
@@ -207,7 +207,7 @@ HTML;
 	return $revision_id;
 }
 
-function pressbridge_preview_upsert_transient( mysqli $mysqli, $token, array $payload, $expires_at ) {
+function Lenviqa_preview_upsert_transient( mysqli $mysqli, $token, array $payload, $expires_at ) {
 	$key_hash      = md5( $token );
 	$value_name    = '_transient_wtr_preview_' . $key_hash;
 	$timeout_name  = '_transient_timeout_wtr_preview_' . $key_hash;
@@ -228,13 +228,13 @@ function pressbridge_preview_upsert_transient( mysqli $mysqli, $token, array $pa
 	$stmt->close();
 }
 
-$mysqli   = pressbridge_preview_connect_local_db();
-$home_url = pressbridge_preview_get_home_url( $mysqli );
+$mysqli   = Lenviqa_preview_connect_local_db();
+$home_url = Lenviqa_preview_get_home_url( $mysqli );
 
-$published_page_id = pressbridge_preview_upsert_page(
+$published_page_id = Lenviqa_preview_upsert_page(
 	$mysqli,
 	array(
-		'post_title'   => 'PB Preview Scenario',
+		'post_title'   => 'Lenviqa Preview Scenario',
 		'post_name'    => 'pb-preview-scenario',
 		'post_excerpt' => 'Published preview scenario page.',
 		'post_status'  => 'publish',
@@ -243,10 +243,10 @@ $published_page_id = pressbridge_preview_upsert_page(
 	$home_url
 );
 
-$draft_page_id = pressbridge_preview_upsert_page(
+$draft_page_id = Lenviqa_preview_upsert_page(
 	$mysqli,
 	array(
-		'post_title'   => 'PB Preview Draft Only',
+		'post_title'   => 'Lenviqa Preview Draft Only',
 		'post_name'    => 'pb-preview-draft-only',
 		'post_excerpt' => 'Draft-only route for preview validation.',
 		'post_status'  => 'draft',
@@ -255,13 +255,13 @@ $draft_page_id = pressbridge_preview_upsert_page(
 	$home_url
 );
 
-$revision_id = pressbridge_preview_upsert_revision( $mysqli, $published_page_id );
+$revision_id = Lenviqa_preview_upsert_revision( $mysqli, $published_page_id );
 
 $valid_token   = 'pbpreviewvalidtoken001';
 $expired_token = 'pbpreviewexpiredtoken001';
 $now           = time();
 
-pressbridge_preview_upsert_transient(
+Lenviqa_preview_upsert_transient(
 	$mysqli,
 	$valid_token,
 	array(
@@ -273,7 +273,7 @@ pressbridge_preview_upsert_transient(
 	$now + 900
 );
 
-pressbridge_preview_upsert_transient(
+Lenviqa_preview_upsert_transient(
 	$mysqli,
 	$expired_token,
 	array(

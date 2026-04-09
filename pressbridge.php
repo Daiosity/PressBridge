@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: PressBridge
- * Plugin URI:  https://example.com/pressbridge
+ * Plugin Name: Lenviqa
+ * Plugin URI:  https://example.com/lenviqa
  * Description: Connect WordPress to modern frontends.
  * Version:     0.2.0
  * Author:      Codex
@@ -14,17 +14,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WTR_VERSION', '0.2.0' );
-define( 'WTR_PLUGIN_FILE', __FILE__ );
-define( 'WTR_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'WTR_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+if ( ! defined( 'WTR_VERSION' ) ) {
+	define( 'WTR_VERSION', '0.2.0' );
+}
+
+if ( ! defined( 'WTR_PLUGIN_FILE' ) ) {
+	define( 'WTR_PLUGIN_FILE', __FILE__ );
+}
+
+if ( ! defined( 'WTR_PLUGIN_DIR' ) ) {
+	define( 'WTR_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+}
+
+if ( ! defined( 'WTR_PLUGIN_URL' ) ) {
+	define( 'WTR_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+}
 
 require_once WTR_PLUGIN_DIR . 'includes/Core/Autoloader.php';
 
 \WP_To_React\Core\Autoloader::register();
 
-register_activation_hook( WTR_PLUGIN_FILE, array( '\WP_To_React\Core\Activator', 'activate' ) );
-register_deactivation_hook( WTR_PLUGIN_FILE, array( '\WP_To_React\Core\Deactivator', 'deactivate' ) );
+register_activation_hook( __FILE__, array( '\WP_To_React\Core\Activator', 'activate' ) );
+register_deactivation_hook( __FILE__, array( '\WP_To_React\Core\Deactivator', 'deactivate' ) );
 
 if ( ! function_exists( 'wtr_plugin' ) ) {
 	/**

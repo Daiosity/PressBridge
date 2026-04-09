@@ -78,7 +78,7 @@ function Assert-FileParity {
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $apiBase = ($WordPressBase.TrimEnd('/')) + '/wp-json/pressbridge/v1'
 
-Write-Host "Checking PressBridge core endpoints..." -ForegroundColor Cyan
+Write-Host "Checking Lenviqa core endpoints..." -ForegroundColor Cyan
 
 $site = Invoke-Json "$apiBase/site"
 Assert-Condition (-not [string]::IsNullOrWhiteSpace($site.name)) 'Site endpoint returned no site name.'
@@ -201,14 +201,14 @@ if (-not $SkipPreviewScenarios) {
 
     $publishedPreviewRoute = Assert-ResolveRoute -ApiBase $apiBase -Path $previewPath
     Assert-Condition ($publishedPreviewRoute.route_type -eq 'singular') 'Published preview scenario route did not resolve as singular.'
-    Assert-Condition ($publishedPreviewRoute.title -eq 'PB Preview Scenario') "Published preview scenario resolved unexpected title '$($publishedPreviewRoute.title)'."
+    Assert-Condition ($publishedPreviewRoute.title -eq 'Lenviqa Preview Scenario') "Published preview scenario resolved unexpected title '$($publishedPreviewRoute.title)'."
 
     Assert-HttpError -Url "$apiBase/resolve?path=$([uri]::EscapeDataString($draftPreviewPath))" -StatusCode 404 -BodyPattern '"code":"wtr_route_not_(public|found)"'
 
     $previewData = Invoke-Json "$apiBase/preview/$validPreviewToken"
     Assert-Condition ($previewData.is_preview -eq $true) 'Valid preview token did not return is_preview=true.'
     Assert-Condition ($previewData.route_type -eq 'singular') "Valid preview token did not resolve as singular."
-    Assert-Condition ($previewData.title -eq 'PB Preview Scenario Draft') "Valid preview token returned unexpected title '$($previewData.title)'."
+    Assert-Condition ($previewData.title -eq 'Lenviqa Preview Scenario Draft') "Valid preview token returned unexpected title '$($previewData.title)'."
     Assert-Condition ($previewData.preview.source -eq 'autosave') "Valid preview token returned unexpected preview source '$($previewData.preview.source)'."
     Assert-Condition ($previewData.content -match 'preview seed revision') 'Valid preview token did not return the revision content.'
 
@@ -222,7 +222,7 @@ if (-not $SkipPreviewScenarios) {
 }
 
 Write-Host ''
-Write-Host 'PressBridge core validation passed.' -ForegroundColor Green
+Write-Host 'Lenviqa core validation passed.' -ForegroundColor Green
 Write-Host "WordPress base: $WordPressBase"
 Write-Host "Frontend base:  $FrontendBase"
 Write-Host "Pages found:    $($pages.items.Count)"

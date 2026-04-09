@@ -1,6 +1,6 @@
 # Preview Scenario Matrix
 
-These scenarios form the lightweight preview-flow guardrail for PressBridge beta-readiness.
+These scenarios form the lightweight preview-flow guardrail for Lenviqa beta-readiness.
 
 They are meant to prove the core bridge behavior around preview tokens, preview payload resolution, honest failure states, and normal public route safety. They do not attempt to prove full editor UI behavior or cross-domain browser quirks beyond what the local scenario set can actually validate.
 

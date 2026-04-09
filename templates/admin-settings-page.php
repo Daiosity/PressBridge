@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="wrap">
-	<h1><?php esc_html_e( 'PressBridge', 'pressbridge' ); ?></h1>
+	<h1><?php esc_html_e( 'Lenviqa', 'pressbridge' ); ?></h1>
 	<p><?php esc_html_e( 'Connect WordPress to modern frontends.', 'pressbridge' ); ?></p>
 
 	<?php settings_errors( \WP_To_React\Core\Settings::OPTION_NAME ); ?>
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<li><?php esc_html_e( 'Start the React starter and confirm the site and resolve endpoints return JSON.', 'pressbridge' ); ?></li>
 				<li><?php esc_html_e( 'Preview a draft before enabling redirect mode.', 'pressbridge' ); ?></li>
 			</ol>
-			<p class="description" style="margin-top:12px;"><?php esc_html_e( 'PressBridge is safest when rollout happens in this order: connect the frontend, verify routes, verify preview, then enable redirect handoff.', 'pressbridge' ); ?></p>
+			<p class="description" style="margin-top:12px;"><?php esc_html_e( 'Lenviqa is safest when rollout happens in this order: connect the frontend, verify routes, verify preview, then enable redirect handoff.', 'pressbridge' ); ?></p>
 		</div>
 
 		<div class="card" style="padding:16px;">
@@ -49,7 +49,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<div class="card" style="padding:16px;">
 			<h2 style="margin-top:0;"><?php esc_html_e( 'Recommended Rollout', 'pressbridge' ); ?></h2>
-			<p><?php esc_html_e( 'Start with WordPress still rendering public pages while your frontend consumes the PressBridge endpoints. Switch on public redirect handoff only after the frontend can resolve real routes cleanly.', 'pressbridge' ); ?></p>
+			<p><?php esc_html_e( 'Start with WordPress still rendering public pages while your frontend consumes the Lenviqa endpoints. Switch on public redirect handoff only after the frontend can resolve real routes cleanly.', 'pressbridge' ); ?></p>
 			<p><?php esc_html_e( 'Editors and admins stay on safe WordPress routes while they work, so rollout can be gradual without disrupting content teams.', 'pressbridge' ); ?></p>
 		</div>
 
@@ -77,7 +77,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							value="1"
 							<?php checked( ! empty( $settings['headless_mode'] ) ); ?>
 						/>
-						<?php esc_html_e( 'Turn on PressBridge handoff features for this site.', 'pressbridge' ); ?>
+						<?php esc_html_e( 'Turn on Lenviqa handoff features for this site.', 'pressbridge' ); ?>
 					</label>
 					<p class="description"><?php esc_html_e( 'This never affects wp-admin, login, AJAX, cron, REST requests, or editor sessions that still need WordPress.', 'pressbridge' ); ?></p>
 				</td>

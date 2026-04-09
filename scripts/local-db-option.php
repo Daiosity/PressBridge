@@ -4,7 +4,7 @@
  *
  * Usage examples:
  * php local-db-option.php get active_plugins
-* php local-db-option.php activate-plugin pressbridge/pressbridge.php
+* php local-db-option.php activate-plugin lenviqa/pressbridge.php
  * php local-db-option.php set wtr_settings '{"headless_mode":true}'
  */
 

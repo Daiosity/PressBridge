@@ -25,7 +25,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build-plugin.ps1
 
 Expected result:
 
-- `build/pressbridge-{version}.zip`
+- `build/lenviqa-{version}.zip`
 
 ### 2. Validate the ZIP structure
 
@@ -37,7 +37,7 @@ This validation checks:
 
 - plugin version can be parsed from `pressbridge.php`
 - the built ZIP exists
-- the ZIP extracts with a top-level `pressbridge/` folder
+- the ZIP extracts with a top-level `lenviqa/` folder
 - required packaged files and directories exist:
   - `pressbridge.php`
   - `readme.txt`
@@ -75,7 +75,7 @@ These are still manual and should stay in the release checklist:
 
 1. Install the built ZIP into a clean or disposable WordPress site.
 2. Activate the plugin.
-3. Open `Settings > PressBridge`.
+3. Open `Settings > Lenviqa`.
 4. Confirm default settings load without fatal errors.
 5. Confirm starter export download works when `ZipArchive` is available.
 6. Deactivate the plugin and confirm:

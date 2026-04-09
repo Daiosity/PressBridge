@@ -1,4 +1,4 @@
-=== PressBridge ===
+=== Lenviqa ===
 Contributors: codex
 Tags: headless, react, rest-api, frontend, decoupled
 Requires at least: 6.4
@@ -12,7 +12,7 @@ Connect WordPress to modern frontends.
 
 == Description ==
 
-PressBridge turns a normal WordPress site into a headless-ready backend without breaking the editing experience.
+Lenviqa turns a normal WordPress site into a headless-ready backend without breaking the editing experience.
 
 This MVP plugin focuses on a practical bridge:
 
@@ -46,9 +46,9 @@ This is an alpha-stage bridge plugin. It is intentionally conservative:
 
 == Installation ==
 
-1. Upload the plugin ZIP through `Plugins > Add New > Upload Plugin`, or copy the `pressbridge` folder into `wp-content/plugins/`.
-2. Activate `PressBridge`.
-3. Go to `Settings > PressBridge`.
+1. Upload the plugin ZIP through `Plugins > Add New > Upload Plugin`, or copy the `Lenviqa` folder into `wp-content/plugins/`.
+2. Activate `Lenviqa`.
+3. Go to `Settings > Lenviqa`.
 4. Add your frontend app URL, for example `http://localhost:5173`.
 5. Leave route handling in WordPress mode while integrating.
 6. Switch to redirect mode once your React frontend is ready to own public routes.
@@ -82,7 +82,7 @@ Yes. Preview links use signed temporary tokens so a React frontend can request p
 
 = Is the React starter meant to match my active WordPress theme exactly? =
 
-No. PressBridge translates WordPress-managed content and block structure into a React frontend. It aims for coherent layout translation, not pixel-perfect theme cloning.
+No. Lenviqa translates WordPress-managed content and block structure into a React frontend. It aims for coherent layout translation, not pixel-perfect theme cloning.
 
 = Does this support WooCommerce or ACF yet? =
 

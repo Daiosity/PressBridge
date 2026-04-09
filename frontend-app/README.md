@@ -1,12 +1,12 @@
-# PressBridge Frontend
+# Lenviqa Frontend
 
 This frontend expects the repo's Local WordPress site at `http://wp-to-react.local` unless you have renamed it.
 
 ## Quick start
 
-1. Build the plugin ZIP with `powershell -ExecutionPolicy Bypass -File ..\scripts\build-plugin.ps1` if you have not installed PressBridge yet.
-2. Install and activate the built `build/pressbridge-{version}.zip` file in WordPress.
-3. In `Settings > PressBridge`, set the frontend URL to `http://localhost:5173` and keep route mode on WordPress rendering.
+1. Build the plugin ZIP with `powershell -ExecutionPolicy Bypass -File ..\scripts\build-plugin.ps1` if you have not installed Lenviqa yet.
+2. Install and activate the built `build/lenviqa-{version}.zip` file in WordPress.
+3. In `Settings > Lenviqa`, set the frontend URL to `http://localhost:5173` and keep route mode on WordPress rendering.
 4. Install dependencies with `npm install`.
 5. Confirm your local API base points to `http://wp-to-react.local/wp-json/pressbridge/v1`.
 6. Start the dev server with `npm run dev`.
@@ -31,7 +31,7 @@ Use static hosting for MVP and configure rewrites so every frontend route falls 
 - Generic public post type support through the plugin API
 - Preview token support
 - A small fetch layer for the plugin REST endpoints
-- A generic PressBridge starter shell rather than a site-specific theme
+- A generic Lenviqa starter shell rather than a site-specific theme
 
 ## Advanced compatibility
 

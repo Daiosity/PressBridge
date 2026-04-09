@@ -2,7 +2,7 @@
 
 This plan defines the screenshot set for the README and repo-facing materials.
 
-The goal is to make PressBridge understandable through real results:
+The goal is to make Lenviqa understandable through real results:
 
 - WordPress rendering
 - React rendering
@@ -37,7 +37,7 @@ Current seeded routes:
 - frontend simple page demo:
   - `http://localhost:5173/pb-demo-simple-page/`
 - frontend simple post demo:
-  - `http://localhost:5173/pressbridge-demo-post/`
+  - `http://localhost:5173/lenviqa-demo-post/`
 
 Current Local editor URLs:
 
@@ -50,7 +50,7 @@ Current Local editor URLs:
 - simple page editor:
   - `http://wp-to-react.local/wp-admin/post.php?post=28&action=edit`
 - simple post editor:
-  - `http://wp-to-react.local/wp-admin/post.php?post=29&action=edit`
+  - `http://wp-to-react.local/wp-admin/post.php?post=31&action=edit`
 
 If those IDs ever change, use the regenerated values in [build/demo-content-map.json](C:\Users\Christo\Documents\WordPress Plugin Development\WP to React\build\demo-content-map.json).
 
@@ -91,9 +91,9 @@ That order keeps the capture session fast while separating the calm comparison s
 ## Screenshot 2: Preview Flow Example
 
 - WordPress URL:
-  - `http://wp-to-react.local/wp-admin/post.php?post=26&action=edit`
+  - `http://wp-to-react.local/wp-admin/post.php?post=21&action=edit`
 - Frontend URL:
-  - `http://localhost:5173/pb-demo-preview/?wtr_preview=1&wtr_preview_token=pbdemopreviewtoken001`
+  - `http://localhost:5173/pb-preview-scenario/?wtr_preview=1&wtr_preview_token=pbpreviewvalidtoken001`
 - What to show in frame:
   - the frontend preview route with preview-only copy visible
   - enough shell UI to show this is the React frontend
@@ -117,7 +117,7 @@ That order keeps the capture session fast while separating the calm comparison s
   - `http://localhost:5173/pb-demo-guides/getting-started/`
 - What to show in frame:
   - the browser path
-  - the page title `Getting Started with PressBridge`
+  - the page title `Getting Started with Lenviqa`
   - the body copy beneath it without a duplicated in-content H1
   - enough surrounding shell to show the route is resolved normally by the starter
 - Crop out:
@@ -159,7 +159,7 @@ That order keeps the capture session fast while separating the calm comparison s
 - Frontend URL:
   - `http://localhost:5173/`
 - What to show in frame:
-  - the generic PressBridge starter home
+  - the generic Lenviqa starter home
   - header, main hero, and at least one supporting section
 - Crop out:
   - debug tooling
@@ -178,7 +178,7 @@ That order keeps the capture session fast while separating the calm comparison s
     - `http://wp-to-react.local/wp-admin/post.php?post=29&action=edit`
 - Frontend URL:
   - post:
-    - `http://localhost:5173/pressbridge-demo-post/`
+    - `http://localhost:5173/lenviqa-demo-post/`
 - What to show in frame:
   - the simple post route with a heading and short body copy
   - enough shell to make it obvious this is a normal content route, not a special demo page
