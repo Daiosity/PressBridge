@@ -25,4 +25,4 @@ Related pages:
 
 - [Supported Beta Scope](wiki-supported-beta-scope.md)
 - [Validation and Scenario Guardrails](wiki-validation-and-scenario-guardrails.md)
-- [What Is Lenviqa](wiki-what-is-pressbridge.md)
+- [What Is Lenviqa](wiki-what-is-lenviqa.md)

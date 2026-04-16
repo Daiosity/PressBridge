@@ -37,4 +37,4 @@ Use these docs as the detailed scope boundary:
 - [Limitations and Non-Goals](wiki-limitations-and-non-goals.md)
 - [Quick Start](wiki-quick-start.md)
 
-For the higher-level product boundary, see [What Is Lenviqa](wiki-what-is-pressbridge.md).
+For the higher-level product boundary, see [What Is Lenviqa](wiki-what-is-lenviqa.md).

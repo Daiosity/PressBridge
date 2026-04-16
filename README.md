@@ -189,7 +189,7 @@ python server.py
 
 ### Wiki-ready docs
 
-- [What is Lenviqa](docs/wiki-what-is-pressbridge.md)
+- [What is Lenviqa](docs/wiki-what-is-lenviqa.md)
 - [Quick start](docs/wiki-quick-start.md)
 - [Supported beta scope](docs/wiki-supported-beta-scope.md)
 - [Limitations and non-goals](docs/wiki-limitations-and-non-goals.md)

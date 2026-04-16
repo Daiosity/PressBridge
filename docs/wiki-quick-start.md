@@ -41,6 +41,6 @@ powershell -ExecutionPolicy Bypass -File .\scripts\validate-core.ps1 -FrontendBa
 
 Next:
 
-- [What Is Lenviqa](wiki-what-is-pressbridge.md)
+- [What Is Lenviqa](wiki-what-is-lenviqa.md)
 - [Supported Beta Scope](wiki-supported-beta-scope.md)
 - [Limitations and Non-Goals](wiki-limitations-and-non-goals.md)
